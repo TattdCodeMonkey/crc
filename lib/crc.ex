@@ -1,4 +1,4 @@
-defmodule Crc do
+defmodule CRC do
   @moduledoc """
   This module is used to calculate CRC (Cyclic Redundancy Check) values
   for binary data. It uses NIF functions written in C to interate over

@@ -101,7 +101,10 @@ defmodule Crc.Mixfile do
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
      compilers: [:Crc, :elixir, :app],
-     deps: deps]
+     deps: deps,
+     description: description,
+     package: package
+    ]
   end
 
   def application do
@@ -111,6 +114,21 @@ defmodule Crc.Mixfile do
   defp deps do
     [
       {:shouldi, only: [:dev, :test]}
+    ]
+  end
+
+  defp description do
+    """
+    A library used to calculate CRC checksums for binary data
+    """
+  end
+
+  defp package do
+    [
+      files: ["lib", "src", "mix.exs", "Makefile*", "README.md", "LICENSE"],
+      maintainers: ["Rodney Norris"],
+      licenses: ["MIT"],
+      links: %{"GitHub" => "https://github.com/TattdCodeMonkey/crc"}
     ]
   end
 end

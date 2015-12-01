@@ -26,4 +26,4 @@ unload(ErlNifEnv* env, void* priv) {
   enif_free(priv);
 }
 
-ERL_NIF_INIT(Elixir.Crc, nif_funcs, &load, &reload, &upgrade, &unload)
+ERL_NIF_INIT(Elixir.CRC, nif_funcs, &load, &reload, &upgrade, &unload)
