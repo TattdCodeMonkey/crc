@@ -112,9 +112,7 @@ defmodule Crc.Mixfile do
   end
 
   defp deps do
-    [
-      {:shouldi, only: [:dev, :test]}
-    ]
+    []
   end
 
   defp description do
