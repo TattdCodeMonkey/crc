@@ -1,0 +1,30 @@
+!IF [where /Q Makefile.auto.win]
+# The file doesn't exist, so don't include it.
+!ELSE
+!INCLUDE Makefile.auto.win
+!ENDIF
+
+NMAKE = nmake /$(MAKEFLAGS)
+MIX = mix
+CFLAGS = /O2 /EHsc
+
+NIF_SRC=\
+  src\crc_nif.c\
+  src\crc_16_ccitt.c
+
+all: crc
+
+crc:
+	$(MIX) compile
+
+Makefile.auto.win:
+	echo # Auto-generated as part of Makefile.win, do not modify. > $@
+	erl -eval "io:format(\"~s~n\", [lists:concat([\"ERTS_INCLUDE_PATH=\", code:root_dir(), \"/erts-\", erlang:system_info(version), \"/include\"])])" -s init stop -noshell >> $@
+
+!IFDEF ERTS_INCLUDE_PATH
+priv\crc_nif.dll:
+	$(CC) $(CFLAGS) /I"$(ERTS_INCLUDE_PATH)" /LD /MD /Fe$@ $(NIF_SRC)
+!ELSE
+priv\crc_nif.dll: Makefile.auto.win
+	$(NMAKE) /F Makefile.win priv\crc_nif.dll
+!ENDIF

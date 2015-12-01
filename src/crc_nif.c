@@ -3,7 +3,7 @@
 extern ERL_NIF_TERM _calc_16_ccitt(ErlNifEnv* env, int arc, const ERL_NIF_TERM argv[]);
 
 static ErlNifFunc nif_funcs[] = {
-  { "_calc_16_ccitt", 1, _calc_16_ccitt }
+  { "_calc_16_ccitt", 2, _calc_16_ccitt }
 };
 
 static int

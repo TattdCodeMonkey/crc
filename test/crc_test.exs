@@ -1,8 +1,24 @@
 defmodule CrcTest do
-  use ExUnit.Case
+  use ShouldI
   doctest Crc
 
-  test "the truth" do
-    assert 1 + 1 == 2
+  setup context do
+    Dict.put(context, :data, <<0x01, 0x02, 0x44, 0xFA, 0x82, 0x1A, 0xD5>>)
+  end
+
+  test("calculate correct crc with  default 0xFFFF", context) do
+    assert Crc.ccitt_16(context.data) == 0x8F3D
+  end
+
+  test("calculate correct crc with 0x1D0F", context) do
+    assert Crc.ccitt_16(context.data, 0x1D0F) == 0x6681
+  end
+
+  test("calculate correct crc 0x1D0F", context) do
+    assert Crc.ccitt_16_1D0F(context.data) == 0x6681
+  end
+
+  test("calculate correct crc xmodem", context) do
+    assert Crc.ccitt_16_xmodem(context.data) == 0x7EF3
   end
 end

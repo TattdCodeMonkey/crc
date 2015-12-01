@@ -57,15 +57,20 @@ ERL_NIF_TERM _calc_16_ccitt(ErlNifEnv* env, int arc, const ERL_NIF_TERM argv[])
   int dataSize = 0;
   unsigned char* data = NULL;
   unsigned short crc = 0;
+  unsigned int seed = 0xFFFF;
 
-  if(!enif_inspect_binary(env, argv[0], &binary)) {
+  if(arc != 2 || !enif_inspect_binary(env, argv[0], &binary) || !enif_is_number(env, argv[1])) {
+    return enif_make_badarg(env);
+  }
+
+  if(!enif_get_uint(env, argv[1], &seed)) {
     return enif_make_badarg(env);
   }
 
   dataSize = binary.size;
   data = binary.data;
 
-  crc = calc_16_ccitt(data, dataSize, 0xffff);
+  crc = calc_16_ccitt(data, dataSize, ((unsigned short)seed));
 
   return enif_make_int(env, crc);
 }
