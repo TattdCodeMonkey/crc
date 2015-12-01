@@ -124,7 +124,7 @@ defmodule Crc.Mixfile do
   defp package do
     [
       files: ["lib", "src", "mix.exs", "Makefile*", "README.md", "LICENSE"],
-      contributors: ["Rodney Norris"],
+      maintainers: ["Rodney Norris"],
       licenses: ["MIT"],
       links: %{"GitHub" => "https://github.com/TattdCodeMonkey/crc"}
     ]

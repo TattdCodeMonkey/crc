@@ -38,14 +38,11 @@ static const unsigned short ccitt_crc[256] = {
 unsigned short calc_16_ccitt(unsigned char* data, int size, unsigned short seed)
 {
   unsigned short result = seed;
-  int index = 0;
   int tblIndx = 0;
 
-  while( index < size) {
+  while(size--) {
     tblIndx = ((result>>8) ^ *(char *)data++)&0x00ff;
     result = (result << 8) ^ ccitt_crc[tblIndx];
-
-    index++;
   }
 
   return result;

@@ -10,15 +10,12 @@ static const unsigned short modbus_crc[16] = {
 unsigned short calc_16_modbus(unsigned char* data, int size) {
   unsigned short result = 0xffff;
   unsigned char val;
-  int index = 0;
 
-  while (index < size) {
+  while (size--) {
     val = *data++;
 
     result = modbus_crc[(val ^ result) & 15] ^ (result >> 4);
     result = modbus_crc[((val >> 4) ^ result) & 15] ^ (result >> 4);
-
-    index++;
   }
 
   return result;

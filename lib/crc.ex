@@ -40,25 +40,25 @@ defmodule CRC do
     _calc_16_ccitt(data, 0x1D0F)
   end
 
-  @spec crc_16(binary) :: number
-  def crc_16(<<data :: binary>>) do
-    0x0000
-  end
-
   @spec crc_16_modbus(binary) :: number
   def crc_16_modbus(<<data :: binary>>) do
     _calc_16_modbus(data)
   end
 
-  @spec crc_16_sick(binary) :: number
-  def crc_16_sick(<<data :: binary>>) do
-    0x0000
-  end
-
-  @spec crc_dnp(binary) :: number
-  def crc_dnp(<<data :: binary>>) do
-    0x0000
-  end
+  # @spec crc_16(binary) :: number
+  # def crc_16(<<data :: binary>>) do
+  #   0x0000
+  # end
+  #
+  # @spec crc_16_sick(binary) :: number
+  # def crc_16_sick(<<data :: binary>>) do
+  #   0x0000
+  # end
+  #
+  # @spec crc_dnp(binary) :: number
+  # def crc_dnp(<<data :: binary>>) do
+  #   0x0000
+  # end
 
   defp _calc_16_ccitt(_data, _seed), do: "CRC NIF not loaded"
   defp _calc_16_modbus(_), do: "CRC NIF not loaded"

@@ -20,19 +20,19 @@ defmodule CRCTest do
     assert CRC.ccitt_16_xmodem(test_data) == 0x7EF3
   end
 
-  test "calculate correct CRC-16" do
-    assert CRC.crc_16(test_data) == 0x22BB
-  end
+  # test "calculate correct CRC-16" do
+  #   assert CRC.crc_16(test_data) == 0x22BB
+  # end
 
   test "calculate correct CRC-16 Modbus" do
     assert CRC.crc_16_modbus(test_data) == 0x22A0
   end
 
-  test "calculate correct CRC-16 Sick" do
-    assert CRC.crc_16_sick(test_data) == 0x79D7
-  end
-
-  test "calculate correct CRC-DNP" do
-    assert CRC.crc_dnp(test_data) == 0x8DCC
-  end
+  # test "calculate correct CRC-16 Sick" do
+  #   assert CRC.crc_16_sick(test_data) == 0x79D7
+  # end
+  #
+  # test "calculate correct CRC-DNP" do
+  #   assert CRC.crc_dnp(test_data) == 0x8DCC
+  # end
 end
