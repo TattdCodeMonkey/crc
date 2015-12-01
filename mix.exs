@@ -96,7 +96,7 @@ defmodule Crc.Mixfile do
 
   def project do
     [app: :crc,
-     version: "0.1.0",
+     version: "0.2.0",
      elixir: ">= 1.0.0 and < 2.0.0",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
@@ -124,7 +124,7 @@ defmodule Crc.Mixfile do
   defp package do
     [
       files: ["lib", "src", "mix.exs", "Makefile*", "README.md", "LICENSE"],
-      maintainers: ["Rodney Norris"],
+      contributors: ["Rodney Norris"],
       licenses: ["MIT"],
       links: %{"GitHub" => "https://github.com/TattdCodeMonkey/crc"}
     ]
