@@ -27,7 +27,7 @@ unsigned short calc_16_modbus(unsigned char* data, int size) {
 ERL_NIF_TERM _calc_16_modbus(ErlNifEnv* env, int arc, const ERL_NIF_TERM argv[])
 {
   ErlNifBinary binary;
-  int dataSize = 0;
+  int data_size = 0;
   unsigned char* data = NULL;
   unsigned short crc = 0xffff;
 
@@ -35,10 +35,10 @@ ERL_NIF_TERM _calc_16_modbus(ErlNifEnv* env, int arc, const ERL_NIF_TERM argv[])
     return enif_make_badarg(env);
   }
 
-  dataSize = binary.size;
+  data_size = binary.size;
   data = binary.data;
 
-  crc = calc_16_modbus(data, dataSize);
+  crc = calc_16_modbus(data, data_size);
 
   return enif_make_int(env, crc);
 }
