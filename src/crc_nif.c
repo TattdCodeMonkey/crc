@@ -1,9 +1,11 @@
 #include "erl_nif.h"
 
 extern ERL_NIF_TERM _calc_16_ccitt(ErlNifEnv* env, int arc, const ERL_NIF_TERM argv[]);
+extern ERL_NIF_TERM _calc_16_modbus(ErlNifEnv* env, int arc, const ERL_NIF_TERM argv[]);
 
 static ErlNifFunc nif_funcs[] = {
-  { "_calc_16_ccitt", 2, _calc_16_ccitt }
+  { "_calc_16_ccitt", 2, _calc_16_ccitt },
+  { "_calc_16_modbus", 1, _calc_16_modbus }
 };
 
 static int
