@@ -1,4 +1,6 @@
 defmodule CRC do
+  use Bitwise
+  
   @moduledoc """
   This module is used to calculate CRC (Cyclic Redundancy Check) values
   for binary data. It uses NIF functions written in C to interate over
@@ -60,6 +62,16 @@ defmodule CRC do
   #   0x0000
   # end
 
+  @spec checksum_xor(binary) :: number
+  def checksum_xor(<<data :: binary>>) do
+    _checksum_xor(data, 0)
+  end
+
   defp _calc_16_ccitt(_data, _seed), do: "CRC NIF not loaded"
   defp _calc_16_modbus(_), do: "CRC NIF not loaded"
+
+  defp _checksum_xor(<<>>, sum), do: sum
+  defp _checksum_xor(<<val :: integer-unsigned-size(8), rest :: binary>>, sum) do
+    _checksum_xor(rest, Bitwise.bxor(val, sum))
+  end
 end
