@@ -11,7 +11,8 @@ CFLAGS = /O2 /EHsc
 NIF_SRC=\
   src\crc_nif.c\
   src\crc_16_ccitt.c\
-  src\crc_16_modbus.c
+  src\crc_16_modbus.c\
+  src\crc_16.c
 
 all: crc
 
