@@ -1,3 +1,43 @@
+defmodule Crc.Mixfile do
+  use Mix.Project
+
+  def project do
+    [app: :crc,
+     version: "0.4.0",
+     elixir: ">= 1.0.0 and < 2.0.0",
+     build_embedded: Mix.env == :prod,
+     start_permanent: Mix.env == :prod,
+     compilers: [:Crc, :elixir, :app],
+     deps: deps,
+     description: description,
+     package: package
+    ]
+  end
+
+  def application do
+    [applications: [:logger]]
+  end
+
+  defp deps do
+    []
+  end
+
+  defp description do
+    """
+    A library used to calculate CRC checksums for binary data
+    """
+  end
+
+  defp package do
+    [
+      files: ["lib", "src", "mix.exs", "Makefile*", "README.md", "LICENSE"],
+      maintainers: ["Rodney Norris"],
+      licenses: ["MIT"],
+      links: %{"GitHub" => "https://github.com/TattdCodeMonkey/crc"}
+    ]
+  end
+end
+
 defmodule Mix.Tasks.Compile.Crc do
   @shortdoc "Compiles CRC"
 
@@ -88,45 +128,5 @@ defmodule Mix.Tasks.Compile.Crc do
     `build-essential`. Also install `erlang-dev` package if not
     included in your Erlang/OTP version.
     """
-  end
-end
-
-defmodule Crc.Mixfile do
-  use Mix.Project
-
-  def project do
-    [app: :crc,
-     version: "0.4.0",
-     elixir: ">= 1.0.0 and < 2.0.0",
-     build_embedded: Mix.env == :prod,
-     start_permanent: Mix.env == :prod,
-     compilers: [:Crc, :elixir, :app],
-     deps: deps,
-     description: description,
-     package: package
-    ]
-  end
-
-  def application do
-    [applications: [:logger]]
-  end
-
-  defp deps do
-    []
-  end
-
-  defp description do
-    """
-    A library used to calculate CRC checksums for binary data
-    """
-  end
-
-  defp package do
-    [
-      files: ["lib", "src", "mix.exs", "Makefile*", "README.md", "LICENSE"],
-      maintainers: ["Rodney Norris"],
-      licenses: ["MIT"],
-      links: %{"GitHub" => "https://github.com/TattdCodeMonkey/crc"}
-    ]
   end
 end

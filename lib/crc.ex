@@ -1,6 +1,6 @@
 defmodule CRC do
   use Bitwise
-  
+
   @moduledoc """
   This module is used to calculate CRC (Cyclic Redundancy Check) values
   for binary data. It uses NIF functions written in C to interate over
@@ -15,6 +15,14 @@ defmodule CRC do
   def init do
     path = :filename.join(:code.priv_dir(:crc), 'crc_nif')
     :ok = :erlang.load_nif(path, 0)
+  end
+
+  @doc """
+  Calculates a CRC16 checksum for the provided binary
+  """
+  @spec crc_16(binary) :: number
+  def crc_16(<<data :: binary>>) do
+    _calc_16(data)
   end
 
   @doc """
@@ -47,10 +55,6 @@ defmodule CRC do
     _calc_16_modbus(data)
   end
 
-  # @spec crc_16(binary) :: number
-  # def crc_16(<<data :: binary>>) do
-  #   0x0000
-  # end
   #
   # @spec crc_16_sick(binary) :: number
   # def crc_16_sick(<<data :: binary>>) do
@@ -67,7 +71,8 @@ defmodule CRC do
     _checksum_xor(data, 0)
   end
 
-  defp _calc_16_ccitt(_data, _seed), do: "CRC NIF not loaded"
+  defp _calc_16(_), do: "CRC NIF not loaded"
+  defp _calc_16_ccitt(_, _), do: "CRC NIF not loaded"
   defp _calc_16_modbus(_), do: "CRC NIF not loaded"
 
   defp _checksum_xor(<<>>, sum), do: sum
