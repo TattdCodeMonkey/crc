@@ -10,10 +10,27 @@ This module is used to calculate CRC (Cyclic Redundancy Check) values for binary
           [{:crc, "~> 0.1.0"}]
         end
 
+## Supported algorithms
+
+- CRC-16
+- CCITT-16
+- CCITT-16 X modem
+- CCITT-16 1DOF
+- CRC-16 modbus
+- XOR Checksum
+
+## Caution
+
+These are rudimentary implementations that use nif functions. These functions may not be fast enough for larger binaries. If nif functions take too long to execute it can cause problems with the scheduler. More testing needs to be done to determine what is the ideal max size to send, and may require modifications to the functions to calculate the crc's in chunks instead of all at once.
+
+All of this to say, use at your own risk and be sure to do performance testing if your depending on this for any production application.
+
 ## TODO:
   - Add more CRC algorithms:
-    - CRC-16 Modbus
     - CRC-16 Sick
     - CRC-32
     - CRC-DNP
   - update ccitt to support Kermit
+
+  - performance testing
+  - optimize functions & elixir wrappers to chunk data for larger binaries if necessary

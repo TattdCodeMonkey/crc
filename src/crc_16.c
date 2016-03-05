@@ -11,12 +11,12 @@ unsigned short calc_16(unsigned char* data, int size)
   unsigned short result = 0;
   int read = 0;
   int flag;
-  
+
   while(size > 0) {
     flag = result >> 15;
 
     result <<= 1;
-    result |= (*data >> (7 - read)) & 1;
+    result |= (*data >> read) & 1;
 
     read++;
     if (read > 7) {
@@ -29,7 +29,25 @@ unsigned short calc_16(unsigned char* data, int size)
       result ^= CRC16;
     }
   }
-  return result;
+
+  int i;
+  for (i = 0; i < 16; ++i) {
+    flag = result >> 15;
+    result <<= 1;
+    if(flag) {
+      result ^= CRC16;
+    }
+  }
+
+  // item c) reverse the bits
+  unsigned short crc = 0;
+  i = 0x8000;
+  int j = 0x0001;
+  for (; i != 0; i >>=1, j <<= 1) {
+      if (i & result) crc |= j;
+  }
+
+  return crc;
 }
 
 ERL_NIF_TERM _calc_16(ErlNifEnv* env, int arc, const ERL_NIF_TERM argv[])
