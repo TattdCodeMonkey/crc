@@ -7,6 +7,7 @@ defmodule CRC do
   the given binary calculating the CRC checksum value.
   """
 
+  @compile {:autoload, false}
   @on_load {:init, 0}
 
   @doc """
