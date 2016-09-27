@@ -18,7 +18,7 @@ defmodule CRC do
   end
 
   @doc """
-  Calculates a CRC16 checksum for the provided binary
+  Calculates a 16-bit ANSI CRC checksum for the provided binary
   """
   @spec crc_16(binary) :: number
   def crc_16(<<data :: binary>>) do
@@ -50,6 +50,9 @@ defmodule CRC do
     _calc_16_ccitt(data, 0x1D0F)
   end
 
+  @doc """
+  Calculates a 16-bit modbus CRC
+  """
   @spec crc_16_modbus(binary) :: number
   def crc_16_modbus(<<data :: binary>>) do
     _calc_16_modbus(data)
@@ -66,6 +69,9 @@ defmodule CRC do
   #   0x0000
   # end
 
+  @doc """
+  Calculates an XOR checksum for the given binary
+  """
   @spec checksum_xor(binary) :: number
   def checksum_xor(<<data :: binary>>) do
     _checksum_xor(data, 0)

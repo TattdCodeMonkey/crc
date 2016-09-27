@@ -3,7 +3,7 @@ defmodule Crc.Mixfile do
 
   def project do
     [app: :crc,
-     version: "0.4.0",
+     version: "0.4.1",
      elixir: ">= 1.0.0 and < 2.0.0",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
@@ -93,7 +93,7 @@ defmodule Mix.Tasks.Compile.Crc do
 
   defp build_message do
     """
-    Could not compile Comeonin.
+    Could not compile CRC.
     Please make sure that you are using Erlang / OTP version 17.0 or later
     and that you have a C compiler installed.
     """
@@ -103,7 +103,7 @@ defmodule Mix.Tasks.Compile.Crc do
     """
     One option is to install a recent version of Visual Studio (the
     free Community edition will be enough for this task). Then try running
-    `mix deps.compile comeonin` from the `Developer Command Prompt`.
+    `mix deps.compile crc` from the `Developer Command Prompt`.
     If you are using 64-bit erlang, you might need to run the command
     `vcvarsall.bat amd64` in the Visual Studio {version}\VC directory
     before running `mix deps.compile`.
