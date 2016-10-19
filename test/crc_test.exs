@@ -28,6 +28,10 @@ defmodule CRCTest do
     assert CRC.crc_16_modbus(test_data) == 0x4B37
   end
 
+  test "calculate correct CRC-8" do
+    assert CRC.crc_8(test_data) == 0x7B
+  end
+
   # test "calculate correct CRC-16 Sick" do
   #   assert CRC.crc_16_sick(test_data) == 0x56A6
   # end

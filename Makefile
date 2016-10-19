@@ -35,6 +35,7 @@ endif
 endif
 
 NIF_SRC=\
+	src/crc_8.c\
 	src/crc_16.c\
 	src/crc_16_ccitt.c\
 	src/crc_16_modbus.c\
