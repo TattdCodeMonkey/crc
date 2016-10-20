@@ -5,7 +5,7 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="ExDoc v0.13.2">
-    <title>CRC – crc v0.4.1</title>
+    <title>CRC – crc v0.5.0</title>
     <link rel="stylesheet" href="dist/app-bbdf358507.css" />
     
       <link rel="canonical" href="https://hexdocs.pm/crc/CRC.html" />
@@ -28,7 +28,7 @@
         crc
       </h1>
       <h2 class="sidebar-projectVersion">
-        v0.4.1
+        v0.5.0
       </h2>
     </div>
     
@@ -61,7 +61,7 @@
 
 
       <h1>
-        <small class="visible-xs">crc v0.4.1</small>
+        <small class="visible-xs">crc v0.5.0</small>
         CRC
         
         
@@ -143,6 +143,17 @@ seed defaults to 0xFFFF if one is not given</p>
   </div>
   
     <div class="summary-synopsis"><p>Calculates a 16-bit modbus CRC</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#crc_8/2">crc_8(arg, seed \\ 255)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Calculates a 8-bit CRC with polynomial x^8+x^6+x^3+x^2+1, 0x14D.
+Chosen based on Koopman, et al. (0xA6 in his notation = 0x14D &gt;&gt; 1):
+<a href="http://www.ece.cmu.edu/~koopman/roses/dsn04/koopman04_crc_poly_embedded.pdf">http://www.ece.cmu.edu/~koopman/roses/dsn04/koopman04_crc_poly_embedded.pdf</a></p>
 </div>
   
 </div>
@@ -318,6 +329,33 @@ seed defaults to 0xFFFF if one is not given</p>
   
   <section class="docstring">
     <p>Calculates a 16-bit modbus CRC</p>
+
+  </section>
+</div>
+<div class="detail" id="crc_8/2">
+  <div class="detail-header">
+    <a href="#crc_8/2" class="detail-link" title="Link to this function">
+      <i class="icon-link"></i>
+    </a>
+    <span class="signature">crc_8(arg, seed \\ 255)</span>
+    
+    
+  </div>
+  
+    <div class="specs">
+      <h4 class="specs-title">Specs</h4>
+      <div class="specs-list">
+        
+          <pre><code class="elixir">crc_8(binary, number) :: number</code></pre>
+        
+      </div>
+    </div>
+  
+  <section class="docstring">
+    <p>Calculates a 8-bit CRC with polynomial x^8+x^6+x^3+x^2+1, 0x14D.
+Chosen based on Koopman, et al. (0xA6 in his notation = 0x14D &gt;&gt; 1):
+<a href="http://www.ece.cmu.edu/~koopman/roses/dsn04/koopman04_crc_poly_embedded.pdf">http://www.ece.cmu.edu/~koopman/roses/dsn04/koopman04_crc_poly_embedded.pdf</a></p>
+<p>seed defaults to 0xFF if one is not given</p>
 
   </section>
 </div>
