@@ -7,11 +7,12 @@ This module is used to calculate CRC (Cyclic Redundancy Check) values for binary
   1. Add crc to your list of dependencies in `mix.exs`:
 
         def deps do
-          [{:crc, "~> 0.1.0"}]
+          [{:crc, "~> 0.5.0"}]
         end
 
 ## Supported algorithms
 
+- CRC-8 (Koopman)
 - CRC-16
 - CCITT-16
 - CCITT-16 X modem
@@ -25,12 +26,3 @@ These are rudimentary implementations that use nif functions. These functions ma
 
 All of this to say, use at your own risk and be sure to do performance testing if your depending on this for any production application.
 
-## TODO:
-  - Add more CRC algorithms:
-    - CRC-16 Sick
-    - CRC-32
-    - CRC-DNP
-  - update ccitt to support Kermit
-
-  - performance testing
-  - optimize functions & elixir wrappers to chunk data for larger binaries if necessary
