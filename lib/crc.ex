@@ -19,6 +19,18 @@ defmodule CRC do
   end
 
   @doc """
+  Calculates a 8-bit CRC with polynomial x^8+x^6+x^3+x^2+1, 0x14D.
+  Chosen based on Koopman, et al. (0xA6 in his notation = 0x14D >> 1):
+  http://www.ece.cmu.edu/~koopman/roses/dsn04/koopman04_crc_poly_embedded.pdf
+
+  seed defaults to 0xFF if one is not given
+  """
+  @spec crc_8(binary, number) :: number
+  def crc_8(<<data :: binary>>, seed \\ 0xFF) do
+    _calc_8(data, seed)
+  end
+
+  @doc """
   Calculates a 16-bit ANSI CRC checksum for the provided binary
   """
   @spec crc_16(binary) :: number
@@ -78,6 +90,7 @@ defmodule CRC do
     _checksum_xor(data, 0)
   end
 
+  defp _calc_8(_, _), do: "CRC NIF not loaded"
   defp _calc_16(_), do: "CRC NIF not loaded"
   defp _calc_16_ccitt(_, _), do: "CRC NIF not loaded"
   defp _calc_16_modbus(_), do: "CRC NIF not loaded"
