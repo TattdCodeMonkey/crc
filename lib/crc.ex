@@ -5,6 +5,12 @@ defmodule CRC do
   This module is used to calculate CRC (Cyclic Redundancy Check) values
   for binary data. It uses NIF functions written in C to interate over
   the given binary calculating the CRC checksum value.
+
+  CRC implementations have been tested against these online calculators to
+  validate their correctness to the best of our ability.
+
+  https://www.lammertbies.nl/comm/info/crc-calculation.html
+  http://www.sunshine2k.de/coding/javascript/crc/crc_js.html
   """
 
   @compile {:autoload, false}
@@ -40,7 +46,9 @@ defmodule CRC do
 
   @doc """
   Calculates a 16-bit CCITT CRC with the given seed,
-  seed defaults to 0xFFFF if one is not given
+  seed defaults to 0xFFFF if one is not given.
+
+  This CCIT method uses a 0x1021 polynomial.
   """
   @spec ccitt_16(binary, number) :: number
   def ccitt_16(<<data :: binary>>, seed \\ 0xFFFF) do
@@ -49,6 +57,8 @@ defmodule CRC do
 
   @doc """
   Calculates a 16-bit CCITT XMODEM CRC
+
+  This CCIT method uses a 0x1021 polynomial.
   """
   @spec ccitt_16_xmodem(binary) :: number
   def ccitt_16_xmodem(<<data :: binary>>) do
@@ -57,6 +67,8 @@ defmodule CRC do
 
   @doc """
   Calculates a 16-bit CCITT 0x1D0F CRC
+
+  This CCIT method uses a 0x1021 polynomial.
   """
   @spec ccitt_16_1D0F(binary) :: number
   def ccitt_16_1D0F(<<data :: binary>>) do
