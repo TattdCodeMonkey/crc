@@ -8,9 +8,9 @@ defmodule Crc.Mixfile do
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
      compilers: [:Crc, :elixir, :app],
-     deps: deps,
-     description: description,
-     package: package
+     deps: deps(),
+     description: description(),
+     package: package()
     ]
   end
 
@@ -41,7 +41,7 @@ defmodule Crc.Mixfile do
 end
 
 defmodule Mix.Tasks.Compile.Crc do
-  @shortdoc "Compiles CRC"
+  @moduledoc "Compiles CRC"
 
   def run(_) do
     File.mkdir("priv")
@@ -72,17 +72,17 @@ defmodule Mix.Tasks.Compile.Crc do
   end
 
   defp nocompiler_error("nmake") do
-    raise Mix.Error, message: nocompiler_message("nmake") <> windows_message
+    raise Mix.Error, message: nocompiler_message("nmake") <> windows_message()
   end
   defp nocompiler_error(exec) do
-    raise Mix.Error, message: nocompiler_message(exec) <> nix_message
+    raise Mix.Error, message: nocompiler_message(exec) <> nix_message()
   end
 
   defp build_error("nmake") do
-    raise Mix.Error, message: build_message <> windows_message
+    raise Mix.Error, message: build_message() <> windows_message()
   end
   defp build_error(_) do
-    raise Mix.Error, message: build_message <> nix_message
+    raise Mix.Error, message: build_message() <> nix_message()
   end
 
   defp nocompiler_message(exec) do
