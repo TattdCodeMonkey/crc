@@ -1,5 +1,8 @@
 # CRC
 
+[![Build
+Status](https://travis-ci.org/TattdCodeMonkey/crc.png?branch=master)](https://travis-ci.org/TattdCodeMonkey/crc)
+
 This module is used to calculate CRC (Cyclic Redundancy Check) values for binary data. It uses NIF functions written in C to interate over the given binary calculating the CRC checksum value.
 
 CRC implementations have been tested against these online calculators to validate their correctness to the best of our ability.
