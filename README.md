@@ -13,7 +13,7 @@ CRC implementations have been tested against these online calculators to validat
 
 ```elixir
   def deps do
-    [{:crc, "~> 0.5.0"}]
+    [{:crc, "~> 0.5"}]
   end
 ```
 
