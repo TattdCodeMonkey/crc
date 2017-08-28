@@ -38,6 +38,15 @@ defmodule CRC_16_Test do
     assert CRC.ccitt_16_xmodem(@test_data_02) == 0x7658
   end
 
+  # Kermit
+  test "calculate correct CRC-16 kermit - test data 1" do
+    assert CRC.ccitt_16_kermit(@test_data_01) == 0x2189
+  end
+
+  test "calculate correct CRC-16 kermit - test data 2" do
+    assert CRC.ccitt_16_kermit(@test_data_02) == 0xf90c
+  end
+
   # Modbus
   test "calculate correct CRC-16 Modbus" do
     assert CRC.crc_16_modbus(@test_data_01) == 0x4B37
