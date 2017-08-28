@@ -28,6 +28,7 @@ CRC implementations have been tested against these online calculators to validat
 - CCITT-16 X-modem
 - CCITT-16 1-DOF
 - CRC-16 modbus
+- CRC-16 KERMIT
 - XOR Checksum
 
 ## Caution
