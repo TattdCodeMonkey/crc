@@ -56,6 +56,16 @@ defmodule CRC do
   end
 
   @doc """
+  Calculates a 16-bit CCITT Kermit CRC
+
+  This CCIT method uses a 0x8408 polynomial.
+  """
+  @spec ccitt_16_kermit(binary, number) :: number
+  def ccitt_16_kermit(<<data :: binary>>, seed \\ 0x0000) do
+    _calc_16_kermit(data, seed)
+  end
+
+  @doc """
   Calculates a 16-bit CCITT XMODEM CRC
 
   This CCIT method uses a 0x1021 polynomial.
@@ -105,6 +115,7 @@ defmodule CRC do
   defp _calc_8(_, _), do: "CRC NIF not loaded"
   defp _calc_16(_), do: "CRC NIF not loaded"
   defp _calc_16_ccitt(_, _), do: "CRC NIF not loaded"
+  defp _calc_16_kermit(_, _), do: "CRC NIF not loaded"
   defp _calc_16_modbus(_), do: "CRC NIF not loaded"
 
   defp _checksum_xor(<<>>, sum), do: sum
