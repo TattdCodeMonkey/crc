@@ -2,6 +2,8 @@
 
 [![Build
 Status](https://travis-ci.org/TattdCodeMonkey/crc.png?branch=master)](https://travis-ci.org/TattdCodeMonkey/crc)
+[![Hex version](https://img.shields.io/hexpm/v/crc.svg "Hex
+version")](https://hex.pm/packages/crc)
 
 This module is used to calculate CRC (Cyclic Redundancy Check) values for binary data. It uses NIF functions written in C to interate over the given binary calculating the CRC checksum value.
 
