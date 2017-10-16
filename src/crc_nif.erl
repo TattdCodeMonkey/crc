@@ -16,6 +16,10 @@
 -export([crc_16_ccitt_init/1]).
 -export([crc_16_ccitt_update/2]).
 -export([crc_16_ccitt_final/1]).
+-export([crc_16_dnp/1]).
+-export([crc_16_dnp_init/0]).
+-export([crc_16_dnp_update/2]).
+-export([crc_16_dnp_final/1]).
 -export([crc_16_kermit/2]).
 -export([crc_16_kermit_init/1]).
 -export([crc_16_kermit_update/2]).
@@ -72,6 +76,18 @@ crc_16_ccitt_update(_Context, _Input) ->
 	erlang:nif_error({nif_not_loaded, ?MODULE}).
 
 crc_16_ccitt_final(_Context) ->
+	erlang:nif_error({nif_not_loaded, ?MODULE}).
+
+crc_16_dnp(_Input) ->
+	erlang:nif_error({nif_not_loaded, ?MODULE}).
+
+crc_16_dnp_init() ->
+	erlang:nif_error({nif_not_loaded, ?MODULE}).
+
+crc_16_dnp_update(_Context, _Input) ->
+	erlang:nif_error({nif_not_loaded, ?MODULE}).
+
+crc_16_dnp_final(_Context) ->
 	erlang:nif_error({nif_not_loaded, ?MODULE}).
 
 crc_16_kermit(_Seed, _Input) ->

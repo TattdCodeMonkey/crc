@@ -67,15 +67,16 @@ defmodule CRC do
   defdelegate crc_16_modbus(input), to: :crc
 
   @doc """
-  Calculates a 16-bit sick CRC
+  Calculates a 16-bit Sick CRC
   """
   @spec crc_16_sick(binary) :: number
   defdelegate crc_16_sick(input), to: :crc
 
-  # @spec crc_dnp(binary) :: number
-  # def crc_dnp(<<data :: binary>>) do
-  #   0x0000
-  # end
+  @doc """
+  Calculates a 16-bit DNP CRC
+  """
+  @spec crc_16_dnp(binary) :: number
+  defdelegate crc_16_dnp(input), to: :crc
 
   @doc """
   Calculates an XOR checksum for the given binary

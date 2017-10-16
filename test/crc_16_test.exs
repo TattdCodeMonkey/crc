@@ -50,6 +50,15 @@ defmodule CRC_16_Test do
     assert CRC.ccitt_16_xmodem(@test_data_02) == 0x7658
   end
 
+  # DNP
+  test "calcuate correct CRC-16 DNP" do
+    assert CRC.crc_16_dnp(@test_data_01) == 0x82EA
+  end
+
+  test "calculate correct CRC-16 DNP - test data 2" do
+    assert CRC.crc_16_dnp(@test_data_02) == 0xDAC1
+  end
+
   # Kermit
   test "calculate correct CRC-16 kermit - test data 1" do
     assert CRC.ccitt_16_kermit(@test_data_01) == 0x2189

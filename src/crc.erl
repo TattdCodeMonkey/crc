@@ -12,6 +12,7 @@
 -export([ccitt_16_kermit/2]).
 -export([ccitt_16_xmodem/1]).
 -export([ccitt_16_1D0F/1]).
+-export([crc_16_dnp/1]).
 -export([crc_16_modbus/1]).
 -export([crc_16_sick/1]).
 -export([checksum_xor/1]).
@@ -61,6 +62,10 @@ ccitt_16_xmodem(Input) ->
 -spec ccitt_16_1D0F(binary()) -> uint16_t().
 ccitt_16_1D0F(Input) ->
 	crc_nif:crc_16_ccitt(16#1D0F, Input).
+
+-spec crc_16_dnp(binary()) -> uint16_t().
+crc_16_dnp(Input) ->
+	crc_nif:crc_16_dnp(Input).
 
 -spec crc_16_modbus(binary()) -> uint16_t().
 crc_16_modbus(Input) ->
