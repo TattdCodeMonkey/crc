@@ -33,11 +33,11 @@ crc_8_init(uint8_t seed)
 uint8_t
 crc_8_update(uint8_t ctx, const unsigned char *buf, size_t len)
 {
-    size_t i;
-    for (i = 0; i < len; i++) {
-        ctx = (uint8_t)crc_8_table[ctx ^ buf[i]];
+    while (len--) {
+        ctx = (crc_8_table[ctx ^ *buf] ^ (ctx >> 8)) & 0xff;
+        buf++;
     }
-    return ctx;
+    return ctx & 0xff;
 }
 
 uint8_t

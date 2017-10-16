@@ -1,5 +1,6 @@
 defmodule CRC_16_Test do
   use ExUnit.Case
+  use PropCheck
 
   @test_data_01 "123456789"
   @test_data_02 "abcdefg"
@@ -7,10 +8,21 @@ defmodule CRC_16_Test do
   # ANSI CRC-16
   test "calculate correct CRC-16" do
     assert CRC.crc_16(@test_data_01) == 0xBB3D
+    assert CRC.crc_16(@test_data_01) == CRC16.calc(@test_data_01)
+    large_input = :binary.copy(@test_data_01, 1024 * 40 + 1)
+    assert CRC.crc_16(large_input) == 0xF8F6
+    assert CRC.crc_16(large_input) == CRC16.calc(large_input)
   end
 
   test "calculate correct CRC-16- test data 2" do
     assert CRC.crc_16(@test_data_02) == 0xE9D9
+    assert CRC.crc_16(@test_data_02) == CRC16.calc(@test_data_02)
+  end
+
+  property "ANSI CRC-16" do
+    forall input in binary() do
+      CRC.crc_16(input) == CRC16.calc(input)
+    end
   end
 
   # CCITT

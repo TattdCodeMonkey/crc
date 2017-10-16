@@ -24,6 +24,7 @@ erl_crash.dump
 /.erlang.mk
 /.idea
 /c_src/env.mk
+/c_src/Makefile.auto.win
 /ebin
 /logs
 /priv/*.dll
