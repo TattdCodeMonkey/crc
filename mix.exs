@@ -43,7 +43,8 @@ defmodule CRC.Mixfile do
     [
       {:credo, "~> 0.8", only: [:dev, :test], runtime: false},
       {:elixir_make, "~> 0.4", runtime: false},
-      {:ex_doc, "~> 0.18", only: :dev}
+      {:ex_doc, "~> 0.18", only: :dev},
+      {:propcheck, "~> 1.0", only: :test}
     ]
   end
 
