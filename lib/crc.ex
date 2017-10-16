@@ -13,17 +13,6 @@ defmodule CRC do
   http://www.sunshine2k.de/coding/javascript/crc/crc_js.html
   """
 
-  @compile {:autoload, false}
-  @on_load {:init, 0}
-
-  @doc """
-  Initilizes the module by loading NIFs
-  """
-  def init do
-    path = :filename.join(:code.priv_dir(:crc), 'crc_nif')
-    :ok = :erlang.load_nif(path, 0)
-  end
-
   @doc """
   Calculates a 8-bit CRC with polynomial x^8+x^6+x^3+x^2+1, 0x14D.
   Chosen based on Koopman, et al. (0xA6 in his notation = 0x14D >> 1):
@@ -112,11 +101,11 @@ defmodule CRC do
     _checksum_xor(data, 0)
   end
 
-  defp _calc_8(_, _), do: "CRC NIF not loaded"
-  defp _calc_16(_), do: "CRC NIF not loaded"
-  defp _calc_16_ccitt(_, _), do: "CRC NIF not loaded"
-  defp _calc_16_kermit(_, _), do: "CRC NIF not loaded"
-  defp _calc_16_modbus(_), do: "CRC NIF not loaded"
+  defp _calc_8(data, seed), do: :crc_nif.crc_8(seed, data)
+  defp _calc_16(data), do: :crc_nif.crc_16(data)
+  defp _calc_16_ccitt(data, seed), do: :crc_nif.crc_16_ccitt(seed, data)
+  defp _calc_16_kermit(data, seed), do: :crc_nif.crc_16_kermit(seed, data)
+  defp _calc_16_modbus(data), do: :crc_nif.crc_16_modbus(data)
 
   defp _checksum_xor(<<>>, sum), do: sum
   defp _checksum_xor(<<val :: integer-unsigned-size(8), rest :: binary>>, sum) do
