@@ -27,7 +27,11 @@ static ErlNifFunc crc_nif_funcs[] = {{"checksum_xor", 1, crc_nif_checksum_xor_1}
                                      {"crc_16_modbus", 1, crc_nif_crc_16_modbus_1},
                                      {"crc_16_modbus_init", 0, crc_nif_crc_16_modbus_init_0},
                                      {"crc_16_modbus_update", 2, crc_nif_crc_16_modbus_update_2},
-                                     {"crc_16_modbus_final", 1, crc_nif_crc_16_modbus_final_1}};
+                                     {"crc_16_modbus_final", 1, crc_nif_crc_16_modbus_final_1},
+                                     {"crc_16_sick", 1, crc_nif_crc_16_sick_1},
+                                     {"crc_16_sick_init", 0, crc_nif_crc_16_sick_init_0},
+                                     {"crc_16_sick_update", 2, crc_nif_crc_16_sick_update_2},
+                                     {"crc_16_sick_final", 1, crc_nif_crc_16_sick_final_1}};
 
 static int crc_nif_load(ErlNifEnv *env, void **priv_data, ERL_NIF_TERM load_info);
 static int crc_nif_upgrade(ErlNifEnv *env, void **priv_data, void **old_priv_data, ERL_NIF_TERM load_info);

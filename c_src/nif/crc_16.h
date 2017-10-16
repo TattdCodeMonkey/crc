@@ -69,6 +69,20 @@ crc_16_modbus(const unsigned char *buf, size_t len)
     return crc_16_modbus_final(ctx);
 }
 
+extern uint16_t crc_16_sick_init(void);
+extern uint16_t crc_16_sick_update(uint16_t ctx, const unsigned char *buf, size_t len);
+extern uint16_t crc_16_sick_final(uint16_t ctx);
+static uint16_t crc_16_sick(const unsigned char *buf, size_t len);
+
+inline uint16_t
+crc_16_sick(const unsigned char *buf, size_t len)
+{
+    uint16_t ctx;
+    ctx = crc_16_sick_init();
+    ctx = crc_16_sick_update(ctx, buf, len);
+    return crc_16_sick_final(ctx);
+}
+
 /* NIF Functions */
 
 extern ERL_NIF_TERM crc_nif_crc_16_1(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[]);
@@ -90,6 +104,11 @@ extern ERL_NIF_TERM crc_nif_crc_16_modbus_1(ErlNifEnv *env, int argc, const ERL_
 extern ERL_NIF_TERM crc_nif_crc_16_modbus_init_0(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[]);
 extern ERL_NIF_TERM crc_nif_crc_16_modbus_update_2(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[]);
 extern ERL_NIF_TERM crc_nif_crc_16_modbus_final_1(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[]);
+
+extern ERL_NIF_TERM crc_nif_crc_16_sick_1(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[]);
+extern ERL_NIF_TERM crc_nif_crc_16_sick_init_0(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[]);
+extern ERL_NIF_TERM crc_nif_crc_16_sick_update_2(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[]);
+extern ERL_NIF_TERM crc_nif_crc_16_sick_final_1(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[]);
 
 #ifdef __cplusplus
 }

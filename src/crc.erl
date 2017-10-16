@@ -13,6 +13,7 @@
 -export([ccitt_16_xmodem/1]).
 -export([ccitt_16_1D0F/1]).
 -export([crc_16_modbus/1]).
+-export([crc_16_sick/1]).
 -export([checksum_xor/1]).
 %% Internal API
 -export([priv_dir/0]).
@@ -64,6 +65,10 @@ ccitt_16_1D0F(Input) ->
 -spec crc_16_modbus(binary()) -> uint16_t().
 crc_16_modbus(Input) ->
 	crc_nif:crc_16_modbus(Input).
+
+-spec crc_16_sick(binary()) -> uint16_t().
+crc_16_sick(Input) ->
+	crc_nif:crc_16_sick(Input).
 
 -spec checksum_xor(binary()) -> uint8_t().
 checksum_xor(Input) ->

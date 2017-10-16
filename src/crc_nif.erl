@@ -24,6 +24,10 @@
 -export([crc_16_modbus_init/0]).
 -export([crc_16_modbus_update/2]).
 -export([crc_16_modbus_final/1]).
+-export([crc_16_sick/1]).
+-export([crc_16_sick_init/0]).
+-export([crc_16_sick_update/2]).
+-export([crc_16_sick_final/1]).
 
 -on_load(init/0).
 
@@ -92,6 +96,18 @@ crc_16_modbus_update(_Context, _Input) ->
 	erlang:nif_error({nif_not_loaded, ?MODULE}).
 
 crc_16_modbus_final(_Context) ->
+	erlang:nif_error({nif_not_loaded, ?MODULE}).
+
+crc_16_sick(_Input) ->
+	erlang:nif_error({nif_not_loaded, ?MODULE}).
+
+crc_16_sick_init() ->
+	erlang:nif_error({nif_not_loaded, ?MODULE}).
+
+crc_16_sick_update(_Context, _Input) ->
+	erlang:nif_error({nif_not_loaded, ?MODULE}).
+
+crc_16_sick_final(_Context) ->
 	erlang:nif_error({nif_not_loaded, ?MODULE}).
 
 %%%-------------------------------------------------------------------

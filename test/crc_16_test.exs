@@ -67,4 +67,13 @@ defmodule CRC_16_Test do
   test "calculate correct CRC-16 Modbus - test data 2" do
     assert CRC.crc_16_modbus(@test_data_02) == 0xE9C2
   end
+
+  # Sick
+  test "calcuate correct CRC-16 Sick" do
+    assert CRC.crc_16_sick(@test_data_01) == 0x56A6
+  end
+
+  test "calculate correct CRC-16 Sick - test data 2" do
+    assert CRC.crc_16_sick(@test_data_02) == 0x1CB4
+  end
 end
