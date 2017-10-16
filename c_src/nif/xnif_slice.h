@@ -6,7 +6,6 @@
 
 #include <assert.h>
 #include <inttypes.h>
-#include <stdatomic.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
