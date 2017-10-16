@@ -13,9 +13,11 @@ NIF_SRC=\
   nif\crc_8.c\
   nif\crc_16.c\
   nif\crc_16_ccitt.c\
+  nif\crc_16_dnp.c\
   nif\crc_16_kermit.c\
   nif\crc_16_modbus.c\
   nif\crc_16_sick.c\
+  nif\crc_32.c\
   nif\crc_nif.c
 
 all: app

@@ -79,6 +79,12 @@ defmodule CRC do
   defdelegate crc_16_dnp(input), to: :crc
 
   @doc """
+  Calculates a 32-bit CRC
+  """
+  @spec crc_32(binary) :: number
+  defdelegate crc_32(input), to: :crc
+
+  @doc """
   Calculates an XOR checksum for the given binary
   """
   @spec checksum_xor(binary) :: number

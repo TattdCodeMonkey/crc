@@ -15,6 +15,7 @@
 -export([crc_16_dnp/1]).
 -export([crc_16_modbus/1]).
 -export([crc_16_sick/1]).
+-export([crc_32/1]).
 -export([checksum_xor/1]).
 %% Internal API
 -export([priv_dir/0]).
@@ -22,6 +23,7 @@
 %% Types
 -type uint8_t() :: 16#00..16#FF.
 -type uint16_t() :: 16#0000..16#FFFF.
+-type uint32_t() :: 16#00000000..16#FFFFFFFF.
 
 %%%===================================================================
 %%% Public API Functions
@@ -74,6 +76,10 @@ crc_16_modbus(Input) ->
 -spec crc_16_sick(binary()) -> uint16_t().
 crc_16_sick(Input) ->
 	crc_nif:crc_16_sick(Input).
+
+-spec crc_32(binary()) -> uint32_t().
+crc_32(Input) ->
+	crc_nif:crc_32(Input).
 
 -spec checksum_xor(binary()) -> uint8_t().
 checksum_xor(Input) ->
