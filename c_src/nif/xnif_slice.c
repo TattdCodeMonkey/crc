@@ -126,7 +126,7 @@ xnif_slice_trap(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[])
     trap->total = 0;
 
     while (slice->offset < slice->length) {
-        (void)gettimeofday(&trap->start, NULL);
+        trap->start = enif_monotonic_time(ERL_NIF_USEC);
         phase = slice->phase;
         offset = slice->offset;
         reductions = slice->max_per_slice;
@@ -134,8 +134,8 @@ xnif_slice_trap(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[])
             reductions = slice->length - offset;
         }
         if (phase >= XNIF_SLICE_PHASE_WORK) {
-            TRACE_F("xnif_slice_trap:%s:%d phase = %d, offset = %llu, reductions = %llu\n", __FILE__, __LINE__, phase, offset,
-                    reductions);
+            XNIF_TRACE_F("xnif_slice_trap:%s:%d phase = %d, offset = %llu, reductions = %llu\n", __FILE__, __LINE__, phase, offset,
+                         reductions);
             if ((slice->error = slice->func.work(env, slice, &phase, &offset, reductions)) != 0) {
                 slice->phase = XNIF_SLICE_PHASE_ERROR;
                 if (slice->func.error != NULL) {
@@ -159,10 +159,10 @@ xnif_slice_trap(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[])
         if (phase == XNIF_SLICE_PHASE_DONE) {
             break;
         }
-        (void)gettimeofday(&trap->stop, NULL);
+        trap->stop = enif_monotonic_time(ERL_NIF_USEC);
         /* determine how much of the timeslice was used */
-        timersub(&trap->stop, &trap->start, &trap->timeslice);
-        trap->percent = (int)((trap->timeslice.tv_sec * 1000000 + trap->timeslice.tv_usec) / 10);
+        trap->timeslice = trap->stop - trap->start;
+        trap->percent = (int)((trap->timeslice * 100) / XNIF_SLICE_TIMEOUT);
         trap->total += trap->percent;
         if (trap->percent > 100) {
             trap->percent = 100;
@@ -170,7 +170,7 @@ xnif_slice_trap(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[])
             trap->percent = 1;
         }
         if (enif_consume_timeslice(env, trap->percent) != 0) {
-            TRACE_F("xnif_slice_trap:%s:%d trap->total = %d\n", __FILE__, __LINE__, trap->total);
+            XNIF_TRACE_F("xnif_slice_trap:%s:%d trap->total = %d\n", __FILE__, __LINE__, trap->total);
             /* the timeslice has been used up, so adjust our max_per_slice byte count based on the processing we've done, then
              * reschedule to run again */
             slice->max_per_slice = trap->reductions;
@@ -181,6 +181,9 @@ xnif_slice_trap(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[])
                 } else {
                     slice->max_per_slice = (unsigned long)(slice->max_per_slice / m);
                 }
+            }
+            if (slice->max_per_slice < XNIF_SLICE_MIN_PER_SLICE) {
+                slice->max_per_slice = XNIF_SLICE_MIN_PER_SLICE;
             }
             int i;
             for (i = slice->argc; i > 0; i--) {

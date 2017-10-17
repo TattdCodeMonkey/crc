@@ -15,6 +15,8 @@
 
 #include <erl_nif.h>
 
+#include "xnif_trace.h"
+
 /* Global Definitions */
 
 #ifndef XNIF_SLICE_MAX_ARGC
@@ -23,23 +25,17 @@
 #ifndef XNIF_SLICE_MAX_PER_SLICE
 #define XNIF_SLICE_MAX_PER_SLICE 20000 // 20 KB
 #endif
+#ifndef XNIF_SLICE_MIN_PER_SLICE
+#define XNIF_SLICE_MIN_PER_SLICE 1000 // 1 KB
+#endif
+#ifndef XNIF_SLICE_TIMEOUT
+#define XNIF_SLICE_TIMEOUT 500 // 0.5 milliseconds
+#endif
 
 #define XNIF_SLICE_PHASE_ERROR -2
 #define XNIF_SLICE_PHASE_INIT -1
 #define XNIF_SLICE_PHASE_DONE 0
 #define XNIF_SLICE_PHASE_WORK 1
-
-#ifndef timersub
-#define timersub(tvp, uvp, vvp)                                                                                                    \
-    do {                                                                                                                           \
-        (vvp)->tv_sec = (tvp)->tv_sec - (uvp)->tv_sec;                                                                             \
-        (vvp)->tv_usec = (tvp)->tv_usec - (uvp)->tv_usec;                                                                          \
-        if ((vvp)->tv_usec < 0) {                                                                                                  \
-            (vvp)->tv_sec--;                                                                                                       \
-            (vvp)->tv_usec += 1000000;                                                                                             \
-        }                                                                                                                          \
-    } while ((vvp)->tv_usec >= 1000000)
-#endif
 
 /* Global Types */
 
@@ -71,9 +67,9 @@ struct xnif_slice_s {
 };
 
 struct xnif_slice_trap_s {
-    struct timeval start;
-    struct timeval stop;
-    struct timeval timeslice;
+    ErlNifTime start;
+    ErlNifTime stop;
+    ErlNifTime timeslice;
     size_t reductions;
     int percent;
     int total;
@@ -82,8 +78,6 @@ struct xnif_slice_trap_s {
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-extern int erts_fprintf(FILE *, const char *, ...);
 
 /* Global Variables */
 
@@ -111,42 +105,6 @@ xnif_slice_release(xnif_slice_t *slice)
 
 #ifdef __cplusplus
 }
-#endif
-
-// #define TRACE 1
-#ifdef TRACE
-#ifndef TRACE_C
-#define TRACE_C(c)                                                                                                                 \
-    do {                                                                                                                           \
-        putchar(c);                                                                                                                \
-        fflush(stdout);                                                                                                            \
-    } while (0)
-#endif
-#ifndef TRACE_S
-#define TRACE_S(s)                                                                                                                 \
-    do {                                                                                                                           \
-        fputs((s), stdout);                                                                                                        \
-        fflush(stdout);                                                                                                            \
-    } while (0)
-#endif
-#ifndef TRACE_F
-#define TRACE_F(...)                                                                                                               \
-    do {                                                                                                                           \
-        erts_fprintf(stderr, "%p ", (void *)enif_thread_self());                                                                   \
-        erts_fprintf(stderr, __VA_ARGS__);                                                                                         \
-        fflush(stderr);                                                                                                            \
-    } while (0)
-#endif
-#else
-#ifndef TRACE_C
-#define TRACE_C(c) ((void)(0))
-#endif
-#ifndef TRACE_S
-#define TRACE_S(s) ((void)(0))
-#endif
-#ifndef TRACE_F
-#define TRACE_F(...) ((void)(0))
-#endif
 #endif
 
 #endif
