@@ -173,6 +173,7 @@ xnif_slice_trap(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[])
             TRACE_F("xnif_slice_trap:%s:%d trap->total = %d\n", __FILE__, __LINE__, trap->total);
             /* the timeslice has been used up, so adjust our max_per_slice byte count based on the processing we've done, then
              * reschedule to run again */
+            slice->max_per_slice = trap->reductions;
             if (trap->total > 100) {
                 int m = (int)(trap->total / 100);
                 if (m == 1) {
@@ -180,8 +181,6 @@ xnif_slice_trap(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[])
                 } else {
                     slice->max_per_slice = (unsigned long)(slice->max_per_slice / m);
                 }
-            } else {
-                slice->max_per_slice = trap->reductions;
             }
             int i;
             for (i = slice->argc; i > 0; i--) {
