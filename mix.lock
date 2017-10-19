@@ -1,5 +1,8 @@
 %{"bunt": {:hex, :bunt, "0.2.0", "951c6e801e8b1d2cbe58ebbd3e616a869061ddadcc4863d0a2182541acae9a38", [:mix], []},
   "credo": {:hex, :credo, "0.8.6", "335f723772d35da499b5ebfdaf6b426bfb73590b6fcbc8908d476b75f8cbca3f", [:mix], [{:bunt, "~> 0.2.0", [hex: :bunt, optional: false]}]},
-  "earmark": {:hex, :earmark, "1.0.1", "2c2cd903bfdc3de3f189bd9a8d4569a075b88a8981ded9a0d95672f6e2b63141", [:mix], []},
-  "ex_doc": {:hex, :ex_doc, "0.13.2", "1059a588d2ad3ffab25a0b85c58abf08e437d3e7a9124ac255e1d15cec68ab79", [:mix], [{:earmark, "~> 1.0", [hex: :earmark, optional: false]}]},
+  "earmark": {:hex, :earmark, "1.2.3", "206eb2e2ac1a794aa5256f3982de7a76bf4579ff91cb28d0e17ea2c9491e46a4", [:mix], [], "hexpm"},
+  "elixir_make": {:hex, :elixir_make, "0.4.0", "992f38fabe705bb45821a728f20914c554b276838433349d4f2341f7a687cddf", [], [], "hexpm"},
+  "ex_doc": {:hex, :ex_doc, "0.18.1", "37c69d2ef62f24928c1f4fdc7c724ea04aecfdf500c4329185f8e3649c915baf", [:mix], [{:earmark, "~> 1.1", [hex: :earmark, repo: "hexpm", optional: false]}], "hexpm"},
+  "propcheck": {:hex, :propcheck, "1.0.4", "f83174301b637bce011a4ebf0e4f10e9bae38d6eefebdd117677c7884bc99aa4", [], [{:proper, "~> 1.2.0", [hex: :proper, repo: "hexpm", optional: false]}], "hexpm"},
+  "proper": {:hex, :proper, "1.2.0", "1466492385959412a02871505434e72e92765958c60dba144b43863554b505a4", [], [], "hexpm"},
   "shouldi": {:hex, :shouldi, "0.2.3"}}

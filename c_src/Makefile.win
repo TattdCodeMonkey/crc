@@ -5,30 +5,37 @@
 !ENDIF
 
 NMAKE = nmake /$(MAKEFLAGS)
-MIX = mix
 CFLAGS = /O2 /EHsc
 
 NIF_SRC=\
-  src\crc_8.c\
-  src\crc_16.c\
-  src\crc_16_ccitt.c\
-  src\crc_16_kermit.c\
-  src\crc_16_modbus.c\
-  src\crc_nif.c
+  nif\xnif_slice.c\
+  nif\checksum_xor.c\
+  nif\crc_8.c\
+  nif\crc_16.c\
+  nif\crc_16_ccitt.c\
+  nif\crc_16_dnp.c\
+  nif\crc_16_kermit.c\
+  nif\crc_16_modbus.c\
+  nif\crc_16_sick.c\
+  nif\crc_32.c\
+  nif\crc_nif.c
 
-all: crc
-
-crc:
-	$(MIX) compile
+all: app
 
 Makefile.auto.win:
 	echo # Auto-generated as part of Makefile.win, do not modify. > $@
 	erl -eval "io:format(\"~s~n\", [lists:concat([\"ERTS_INCLUDE_PATH=\", code:root_dir(), \"/erts-\", erlang:system_info(version), \"/include\"])])" -s init stop -noshell >> $@
 
 !IFDEF ERTS_INCLUDE_PATH
-priv\crc_nif.dll:
-	$(CC) $(CFLAGS) /I"$(ERTS_INCLUDE_PATH)" /LD /MD /Fe$@ $(NIF_SRC)
+app:
+  $(CC) $(CFLAGS) /I"$(ERTS_INCLUDE_PATH)" /LD /MD /F"..\priv\crc_nif.dll" $(NIF_SRC)
 !ELSE
-priv\crc_nif.dll: Makefile.auto.win
-	$(NMAKE) /F Makefile.win priv\crc_nif.dll
+app: Makefile.auto.win
+	$(NMAKE) /F Makefile.win app
 !ENDIF
+
+clean:
+  echo "Not implemented"
+
+distclean:
+  echo "Not implemented"
