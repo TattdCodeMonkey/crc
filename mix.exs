@@ -4,7 +4,7 @@ defmodule CRC.Mixfile do
   def project() do
     [
       app: :crc,
-      version: "0.6.0",
+      version: "0.7.0",
       elixir: ">= 1.0.0 and < 2.0.0",
       elixirc_paths: elixirc_paths(Mix.env()),
       build_embedded: Mix.env() == :prod,
@@ -64,8 +64,6 @@ defmodule CRC.Mixfile do
       name: :crc,
       files: [
         "c_src",
-        "CHANGELOG*",
-        "include",
         "lib",
         "LICENSE*",
         "mix.exs",

@@ -18,7 +18,7 @@ CRC implementations have been tested against these online calculators to validat
 
 ```elixir
   def deps do
-    [{:crc, "~> 0.6"}]
+    [{:crc, "~> 0.7"}]
   end
 ```
 
@@ -31,11 +31,8 @@ CRC implementations have been tested against these online calculators to validat
 - CCITT-16 1-DOF
 - CRC-16 modbus
 - CRC-16 KERMIT
+- CRC-16 SICK
+- CRC-16 DNP
+- CRC-32
 - XOR Checksum
-
-## Caution
-
-These are rudimentary implementations that use nif functions. These functions may not be fast enough for larger binaries. If nif functions take too long to execute it can cause problems with the scheduler. More testing needs to be done to determine what is the ideal max size to send, and may require modifications to the functions to calculate the crc's in chunks instead of all at once.
-
-All of this to say, use at your own risk and be sure to do performance testing if your depending on this for any production application.
 
