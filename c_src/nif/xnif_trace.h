@@ -25,7 +25,7 @@ extern int erts_fprintf(FILE *, const char *, ...);
 }
 #endif
 
-// #define XNIF_TRACE 1
+#define XNIF_TRACE 1
 #ifdef XNIF_TRACE
 #define XNIF_TRACE_C(c)                                                                                                            \
     do {                                                                                                                           \
