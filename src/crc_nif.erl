@@ -3,9 +3,13 @@
 -module(crc_nif).
 
 %% NIF Functions
+-export([debug_table/1]).
+-export([crc/2]).
 -export([crc_info/1]).
 -export([crc_init/1]).
 -export([crc_list/0]).
+-export([crc_update/2]).
+-export([crc_final/1]).
 -export([checksum_xor/1]).
 -export([crc_8/2]).
 -export([crc_8_init/1]).
@@ -46,6 +50,12 @@
 %%% NIF Functions
 %%%===================================================================
 
+debug_table(_Context) ->
+	erlang:nif_error({nif_not_loaded, ?MODULE}).
+
+crc(_Params, _Input) ->
+	erlang:nif_error({nif_not_loaded, ?MODULE}).
+
 crc_info(_Context) ->
 	erlang:nif_error({nif_not_loaded, ?MODULE}).
 
@@ -53,6 +63,12 @@ crc_init(_Params) ->
 	erlang:nif_error({nif_not_loaded, ?MODULE}).
 
 crc_list() ->
+	erlang:nif_error({nif_not_loaded, ?MODULE}).
+
+crc_update(_Context, _Input) ->
+	erlang:nif_error({nif_not_loaded, ?MODULE}).
+
+crc_final(_Context) ->
 	erlang:nif_error({nif_not_loaded, ?MODULE}).
 
 checksum_xor(_Input) ->

@@ -89,4 +89,26 @@ defmodule CRC do
   """
   @spec checksum_xor(binary) :: number
   defdelegate checksum_xor(input), to: :crc
+
+  def generate(params={sick, width, poly, init, refin, refout, xorout, check, residue}) do
+    context = :crc_nif.crc_init(params)
+    table =
+      if sick do
+        :lists.duplicate(256, 0)
+      else
+        {true, table} = :crc_nif.debug_table(context)
+        table
+      end
+    bits = (div(width, 8) + (if rem(width, 8) == 0, do: 0, else: 1)) * 8
+    f = fn (x) ->
+      "0x" <> Base.encode16(<< x :: unsigned-big-integer-unit(1)-size(bits) >>, case: :lower)
+    end
+    :erlang.iolist_to_binary([
+      "{{{NULL, NULL}, true, 0, \"\", #{bits}}, #{sick}, #{width}, #{f.(poly)}, #{f.(init)}, #{refin}, #{refout}, #{f.(xorout)}, #{f.(check)}, #{f.(residue)}, {",
+      for n <- table, into: [] do
+        [f.(n), ?,]
+      end,
+      "}}"
+    ])
+  end
 end

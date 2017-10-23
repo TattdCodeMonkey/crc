@@ -16,6 +16,7 @@
 
 #include <erl_nif.h>
 
+#include "crc_linklist.h"
 #include "xnif_trace.h"
 
 #ifdef __cplusplus

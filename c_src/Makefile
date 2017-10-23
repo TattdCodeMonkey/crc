@@ -88,8 +88,8 @@ ifneq ($(PLATFORM),msys2)
 	CXXFLAGS += -fPIC
 endif
 
-ifneq ($(CROSSCOMPILER),)
-	CC = $(CROSSCOMPILER)gcc
+ifneq ($(CROSSCOMPILE),)
+	CC = $(CROSSCOMPILE)-gcc
 endif
 
 CFLAGS += -I"$(ERTS_INCLUDE_DIR)" -I"$(ERL_INTERFACE_INCLUDE_DIR)"
@@ -186,6 +186,6 @@ distclean-env:
 	$(gen_verbose) rm -f $(C_SRC_ENV)
 
 clang-format-all:
-	$(gen_verbose) clang-format -i nif/*.c nif/*.h
+	$(gen_verbose) clang-format -i nif/*.c nif/*.h nif/*.c.h
 
 -include $(C_SRC_ENV)
