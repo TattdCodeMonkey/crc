@@ -221,6 +221,24 @@ crc_nif_crc_fast_init_1_tuple(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[
     const crc_model_t *model = NULL;
     crc_resource_t *resource = NULL;
     uint8_t bits = ((width / 8) + (((width % 8) | ((~(width % 8) + 1) >> 7)) & 1)) * 8;
+    switch (bits) {
+    case 8:
+    case 16:
+    case 32:
+    case 64:
+        break;
+    default:
+        if (bits > 8 && bits < 16) {
+            bits = 16;
+        } else if (bits > 16 && bits < 32) {
+            bits = 32;
+        } else if (bits > 32 && bits < 64) {
+            bits = 64;
+        } else {
+            return enif_make_badarg(env);
+        }
+        break;
+    }
 
 #define CRC_INIT_MODEL_AND_RESOURCE(type)                                                                                          \
     do {                                                                                                                           \
