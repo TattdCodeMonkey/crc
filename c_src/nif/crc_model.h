@@ -39,6 +39,9 @@ typedef struct crc_model_s {
         type##_t check;                                                                                                            \
         type##_t residue;                                                                                                          \
         type##_t table[256];                                                                                                       \
+        type##_t msb_mask;                                                                                                         \
+        type##_t crc_mask;                                                                                                         \
+        unsigned int crc_shift;                                                                                                    \
     } crc_model_##type##_t
 
 CRC_MODEL_DEF(uint8);
@@ -58,9 +61,7 @@ extern void crc_model_unload(ErlNifEnv *env, void **priv_data);
 extern int crc_model_get(ERL_NIF_TERM key, const crc_model_t **model);
 extern int crc_model_match(const crc_model_t *needle, const crc_model_t **model);
 extern ERL_NIF_TERM crc_model_list(ErlNifEnv *env);
-extern int crc_model_compile(crc_model_t *model);
-extern int crc_model_update(const crc_model_t *model, const uint8_t *buf, size_t len, void *value);
-extern int crc_model_final(const crc_model_t *model, const void *old_value, void *new_value);
+extern int crc_model_init(crc_model_t *model);
 
 #ifdef __cplusplus
 }

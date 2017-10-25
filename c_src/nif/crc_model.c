@@ -82,6 +82,7 @@ crc_model_load(ErlNifEnv *env, void **priv_data, ERL_NIF_TERM load_info)
             m = &crc_model_##type##_list[i++];                                                                                     \
             (void)crc_linklist_init_anchor(&m->super._link);                                                                       \
             m->super.root_key = enif_make_atom(env, m->super.root_keystring);                                                      \
+            (void)crc_model_init(&m->super);                                                                                       \
             im = kh_put(crc_models, ms, m->super.root_key, &r);                                                                    \
             switch (r) {                                                                                                           \
             case 1: /* the bucket is empty (never used) */                                                                         \
@@ -277,3 +278,55 @@ crc_model_list(ErlNifEnv *env)
 
     return out;
 }
+
+/* crc_model_init/1 */
+
+static int crc_model_uint8_init(crc_model_uint8_t *model);
+static int crc_model_uint16_init(crc_model_uint16_t *model);
+static int crc_model_uint32_init(crc_model_uint32_t *model);
+static int crc_model_uint64_init(crc_model_uint64_t *model);
+
+int
+crc_model_init(crc_model_t *model)
+{
+#define CRC_MODEL_INIT_CALL(type) return crc_model_##type##_init((void *)model)
+
+    switch (model->bits) {
+    case 8:
+        CRC_MODEL_INIT_CALL(uint8);
+        break;
+    case 16:
+        CRC_MODEL_INIT_CALL(uint16);
+        break;
+    case 32:
+        CRC_MODEL_INIT_CALL(uint32);
+        break;
+    case 64:
+        CRC_MODEL_INIT_CALL(uint64);
+        break;
+    default:
+        break;
+    }
+
+#undef CRC_MODEL_INIT_CALL
+
+    return 0;
+}
+
+#define CRC_MODEL_INIT_DEF(type)                                                                                                   \
+    inline int crc_model_##type##_init(crc_model_##type##_t *model)                                                                \
+    {                                                                                                                              \
+        model->msb_mask = 1;                                                                                                       \
+        model->msb_mask <<= (model->width - 1);                                                                                    \
+        model->crc_mask = 1;                                                                                                       \
+        model->crc_mask |= ((model->msb_mask - 1) << 1);                                                                           \
+        model->crc_shift = (model->width < 8) ? 8 - model->width : 0;                                                              \
+        return 1;                                                                                                                  \
+    }
+
+CRC_MODEL_INIT_DEF(uint8)
+CRC_MODEL_INIT_DEF(uint16)
+CRC_MODEL_INIT_DEF(uint32)
+CRC_MODEL_INIT_DEF(uint64)
+
+#undef CRC_MODEL_INIT_DEF

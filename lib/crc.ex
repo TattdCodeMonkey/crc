@@ -90,6 +90,70 @@ defmodule CRC do
   @spec checksum_xor(binary) :: number
   defdelegate checksum_xor(input), to: :crc
 
+  def crc(model, input \\ "123456789") do
+    context = :crc_nif.crc_init(model)
+    context = :crc_nif.crc_update(context, input)
+    %{ bits: bits } = :crc_nif.crc_info(context)
+    result = :crc_nif.crc_final(context)
+    Base.encode16(<< result :: unsigned-little-integer-unit(1)-size(bits) >>, case: :lower)
+  end
+
+  def check() do
+    check(Map.keys(:crc_nif.crc_list()))
+  end
+
+  def check(models) do
+    input = "123456789"
+    for model <- models, into: %{} do
+      context = :crc_nif.crc_init(model)
+      context = :crc_nif.crc_update(context, input)
+      %{ check: check, bits: bits } = :crc_nif.crc_info(context)
+      result = :crc_nif.crc_final(context)
+      if result == check do
+        {model, {true, Base.encode16(<< result :: unsigned-little-integer-unit(1)-size(bits) >>, case: :lower)}}
+      else
+        {model, {false, Base.encode16(<< check :: unsigned-little-integer-unit(1)-size(bits) >>, case: :lower), Base.encode16(<< result :: unsigned-little-integer-unit(1)-size(bits) >>, case: :lower)}}
+      end
+    end
+  end
+
+  def residue() do
+    residue(Map.keys(:crc_nif.crc_list()))
+  end
+
+  def residue(models) do
+    for model <- models, into: %{} do
+      context = :crc_nif.crc_init(model)
+      %{ residue: residue, bits: bits } = :crc_nif.crc_info(context)
+      result = :crc_nif.crc_residue(context)
+      if result == residue do
+        {model, {true, Base.encode16(<< result :: unsigned-little-integer-unit(1)-size(bits) >>, case: :lower)}}
+      else
+        {model, {false, Base.encode16(<< residue :: unsigned-little-integer-unit(1)-size(bits) >>, case: :lower), Base.encode16(<< result :: unsigned-little-integer-unit(1)-size(bits) >>, case: :lower)}}
+      end
+    end
+  end
+
+  def checkbad() do
+    checkbad(Map.keys(:crc_nif.crc_list()))
+  end
+
+  def checkbad(models) do
+    for {key, val={false, _, _}} <- check(models), into: %{} do
+      {key, val}
+    end
+  end
+
+  def resbad() do
+    resbad(Map.keys(:crc_nif.crc_list()))
+  end
+
+  def resbad(models) do
+    for {key, val={false, _, _}} <- residue(models), into: %{} do
+      {key, val}
+    end
+  end
+
   def generate(params={sick, width, poly, init, refin, refout, xorout, check, residue}) do
     context = :crc_nif.crc_init(params)
     table =

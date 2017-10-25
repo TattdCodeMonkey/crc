@@ -13,6 +13,7 @@ typedef struct crc_resource_s crc_resource_t;
 struct crc_resource_s {
     const crc_resource_t *parent;
     const crc_model_t *model;
+    bool slow;
 };
 
 #define CRC_RESOURCE_DEF(type)                                                                                                     \
@@ -20,6 +21,7 @@ struct crc_resource_s {
     struct crc_resource_##type##_s {                                                                                               \
         const crc_resource_##type##_t *parent;                                                                                     \
         const crc_model_##type##_t *model;                                                                                         \
+        bool slow;                                                                                                                 \
         type##_t value;                                                                                                            \
     };                                                                                                                             \
     typedef struct crc_resource_embed_##type##_s crc_resource_embed_##type##_t;                                                    \
@@ -42,7 +44,8 @@ extern "C" {
 extern int crc_resource_load(ErlNifEnv *env, void **priv_data, ERL_NIF_TERM load_info);
 extern int crc_resource_upgrade(ErlNifEnv *env, void **priv_data, void **old_priv_data, ERL_NIF_TERM load_info);
 extern void crc_resource_unload(ErlNifEnv *env, void **priv_data);
-extern crc_resource_t *crc_resource_create(const crc_resource_t *parent, const crc_model_t *model);
+extern crc_resource_t *crc_resource_create(const crc_resource_t *parent, const crc_model_t *model, bool slow);
+extern crc_resource_t *crc_resource_clone(const crc_resource_t *parent);
 extern int crc_resource_get(ErlNifEnv *env, ERL_NIF_TERM resource_term, const crc_resource_t **resource);
 extern int crc_resource_update(const crc_resource_t *old_resource, const uint8_t *buf, size_t len, crc_resource_t **new_resource);
 extern int crc_resource_update_unsafe(crc_resource_t *resource, const uint8_t *buf, size_t len);

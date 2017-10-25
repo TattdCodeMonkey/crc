@@ -46,20 +46,22 @@ crc_resource_unload(ErlNifEnv *env, void **priv_data)
 }
 
 static crc_resource_t *
-crc_resource_create_child(const crc_resource_t *parent)
+crc_resource_create_child(const crc_resource_t *parent, bool slow)
 {
     crc_resource_t *resource = NULL;
 
 #define RESOURCE_CREATE_PARENT(type)                                                                                               \
     do {                                                                                                                           \
-        crc_resource_uint8_t *p = (void *)enif_alloc_resource(crc_resource_type, sizeof(*p));                                      \
+        crc_resource_##type##_t *p = (void *)enif_alloc_resource(crc_resource_type, sizeof(*p));                                   \
         if (p == NULL) {                                                                                                           \
             return NULL;                                                                                                           \
         }                                                                                                                          \
         (void)enif_keep_resource((void *)parent);                                                                                  \
         p->parent = (void *)parent;                                                                                                \
         p->model = (void *)parent->model;                                                                                          \
-        p->value = p->model->init;                                                                                                 \
+        p->slow = slow;                                                                                                            \
+        p->value = 0;                                                                                                              \
+        (void)crc_algorithm_init((void *)p->model, slow, &p->value);                                                               \
         resource = (void *)p;                                                                                                      \
     } while (0)
 
@@ -87,7 +89,7 @@ crc_resource_create_child(const crc_resource_t *parent)
 }
 
 static crc_resource_t *
-crc_resource_create_reference(const crc_model_t *model)
+crc_resource_create_reference(const crc_model_t *model, bool slow)
 {
     crc_resource_t *resource = NULL;
 
@@ -99,7 +101,9 @@ crc_resource_create_reference(const crc_model_t *model)
         }                                                                                                                          \
         p->parent = NULL;                                                                                                          \
         p->model = (void *)model;                                                                                                  \
-        p->value = p->model->init;                                                                                                 \
+        p->slow = slow;                                                                                                            \
+        p->value = 0;                                                                                                              \
+        (void)crc_algorithm_init((void *)p->model, slow, &p->value);                                                               \
         resource = (void *)p;                                                                                                      \
     } while (0)
 
@@ -126,14 +130,16 @@ crc_resource_create_reference(const crc_model_t *model)
     return resource;
 }
 
+/* crc_resource_create/3 */
+
 crc_resource_t *
-crc_resource_create(const crc_resource_t *parent, const crc_model_t *model)
+crc_resource_create(const crc_resource_t *parent, const crc_model_t *model, bool slow)
 {
     if (model->root_keystring[0] != '\0') {
-        return crc_resource_create_reference(model);
+        return crc_resource_create_reference(model, slow);
     }
     if (parent != NULL && parent->model == model) {
-        return crc_resource_create_child(parent);
+        return crc_resource_create_child(parent, slow);
     }
     crc_resource_t *resource = NULL;
 
@@ -146,7 +152,9 @@ crc_resource_create(const crc_resource_t *parent, const crc_model_t *model)
         (void)memcpy(&p->model, model, sizeof(p->model));                                                                          \
         p->super.parent = NULL;                                                                                                    \
         p->super.model = &p->model;                                                                                                \
-        p->super.value = p->model.init;                                                                                            \
+        p->super.slow = slow;                                                                                                      \
+        p->super.value = 0;                                                                                                        \
+        (void)crc_algorithm_init((void *)p->super.model, slow, &p->super.value);                                                   \
         resource = (void *)p;                                                                                                      \
     } while (0)
 
@@ -172,6 +180,53 @@ crc_resource_create(const crc_resource_t *parent, const crc_model_t *model)
     return resource;
 }
 
+/* crc_resource_clone/1 */
+
+crc_resource_t *
+crc_resource_clone(const crc_resource_t *parent)
+{
+    crc_resource_t *resource = NULL;
+
+#define CRC_RESOURCE_CLONE_CALL(type)                                                                                              \
+    do {                                                                                                                           \
+        crc_resource_##type##_t *pp = (void *)parent;                                                                              \
+        crc_resource_##type##_t *cp = (void *)enif_alloc_resource(crc_resource_type, sizeof(*cp));                                 \
+        if (cp == NULL) {                                                                                                          \
+            return NULL;                                                                                                           \
+        }                                                                                                                          \
+        (void)enif_keep_resource((void *)pp);                                                                                      \
+        cp->parent = (void *)parent;                                                                                               \
+        cp->model = (void *)parent->model;                                                                                         \
+        cp->slow = parent->slow;                                                                                                   \
+        cp->value = pp->value;                                                                                                     \
+        resource = (void *)cp;                                                                                                     \
+    } while (0)
+
+    switch (parent->model->bits) {
+    case 8: {
+        CRC_RESOURCE_CLONE_CALL(uint8);
+        break;
+    } break;
+    case 16:
+        CRC_RESOURCE_CLONE_CALL(uint16);
+        break;
+    case 32:
+        CRC_RESOURCE_CLONE_CALL(uint32);
+        break;
+    case 64:
+        CRC_RESOURCE_CLONE_CALL(uint64);
+        break;
+    default:
+        return NULL;
+    }
+
+#undef CRC_RESOURCE_CLONE_CALL
+
+    return resource;
+}
+
+/* crc_resource_get/3 */
+
 int
 crc_resource_get(ErlNifEnv *env, ERL_NIF_TERM resource_term, const crc_resource_t **resource)
 {
@@ -195,7 +250,7 @@ crc_resource_update(const crc_resource_t *old_resource, const uint8_t *buf, size
         return 0;
     }
     *new_resource = NULL;
-    crc_resource_t *resource = crc_resource_create(old_resource, old_resource->model);
+    crc_resource_t *resource = crc_resource_create(old_resource, old_resource->model, old_resource->slow);
     if (resource == NULL) {
         return 0;
     }
@@ -213,7 +268,7 @@ crc_resource_update_unsafe(crc_resource_t *resource, const uint8_t *buf, size_t 
 #define CRC_RESOURCE_UPDATE_CALL(type)                                                                                             \
     do {                                                                                                                           \
         crc_resource_##type##_t *r = (void *)resource;                                                                             \
-        return crc_algorithm_update(resource->model, buf, len, (void *)&r->value);                                                 \
+        return crc_algorithm_update(resource->model, resource->slow, buf, len, (void *)&r->value);                                 \
     } while (0)
 
     switch (resource->model->bits) {
@@ -246,7 +301,7 @@ crc_resource_final(const crc_resource_t *resource, void *value)
         crc_resource_##type##_t *r = (void *)resource;                                                                             \
         type##_t *new_value = (type##_t *)value;                                                                                   \
         *new_value = r->value;                                                                                                     \
-        return crc_algorithm_final(resource->model, new_value);                                                                    \
+        return crc_algorithm_final(resource->model, resource->slow, new_value);                                                    \
     } while (0)
 
     switch (resource->model->bits) {
