@@ -621,11 +621,7 @@ crc_algorithm_residue(const crc_model_t *model, void *value)
         if (model->refout) {                                                                                                       \
             xorout = crc_algorithm_##type##_reflect(xorout, model->width);                                                         \
         }                                                                                                                          \
-        /* NOTE: I have no idea why this is necessary for 5 bits... */                                                             \
-        /* NOTE: Also, crc_10_gsm, crc_12_gsm, crc_14_gsm are broken :-( */                                                        \
-        if (model->width == 5) {                                                                                                   \
-            xorout = (xorout << model->crc_shift);                                                                                 \
-        }                                                                                                                          \
+        /* NOTE: crc_5_usb, crc_10_gsm, crc_12_gsm, crc_14_gsm, crc_15_mpt1327, crc_16_dect_r are broken :-( */                    \
         /* XNIF_TRACE_F("xorout  = 0x%04x (reversed)\n", xorout); */                                                               \
         /* XNIF_TRACE_F("residue = 0x%04x\n", residue); */                                                                         \
         size_t len = (model->super.bits / 8);                                                                                      \

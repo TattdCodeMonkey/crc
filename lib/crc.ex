@@ -154,6 +154,14 @@ defmodule CRC do
     end
   end
 
+  def list_models() do
+    list =
+      for {key, val} <- :crc_nif.crc_list(), into: [] do
+        [key | Map.keys(val)]
+      end
+    :lists.usort(:lists.flatten(list))
+  end
+
   def generate(params={sick, width, poly, init, refin, refout, xorout, check, residue}) do
     context = :crc_nif.crc_init(params)
     table =
