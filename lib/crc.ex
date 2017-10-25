@@ -175,4 +175,174 @@ defmodule CRC do
       "}}"
     ])
   end
+  def generate(binary) when is_binary(binary) do
+    params = parse([
+      :width,
+      :poly,
+      :init,
+      :refin,
+      :refout,
+      :xorout,
+      :check,
+      :residue,
+      :name
+    ], binary, %{
+      sick: false,
+      width: nil,
+      poly: nil,
+      init: nil,
+      refin: nil,
+      refout: nil,
+      xorout: nil,
+      check: nil,
+      residue: nil,
+      name: nil
+    })
+    generate(params)
+  end
+  def generate(params=%{
+    sick: sick,
+    width: width,
+    poly: poly,
+    init: init,
+    refin: refin,
+    refout: refout,
+    xorout: xorout,
+    check: check,
+    residue: residue,
+    name: name,
+    root_key: root_key
+  }) do
+    context = :crc_nif.crc_init(params)
+    table =
+      if sick do
+        :lists.duplicate(256, 0)
+      else
+        {true, table} = :crc_nif.debug_table(context)
+        table
+      end
+    bits = (div(width, 8) + (if rem(width, 8) == 0, do: 0, else: 1)) * 8
+    f = fn (x) ->
+      "0x" <> Base.encode16(<< x :: unsigned-big-integer-unit(1)-size(bits) >>, case: :lower)
+    end
+    [_ | table_values] = :lists.flatten(for n <- table, into: [] do
+      [?,, f.(n)]
+    end)
+    :erlang.iolist_to_binary([
+      "/* #{root_key} */\n",
+      "{{NULL, NULL}, false, 0, \"#{root_key}\", 0, \"#{root_key}\", \"#{name}\"},\n",
+      "\n",
+      "/* width=#{width} poly=#{f.(poly)} init=#{f.(init)} refin=#{refin} refout=#{refout} xorout=#{f.(xorout)} check=#{f.(check)} residue=#{f.(residue)} name=\"#{name}\" */\n",
+      "{{{NULL, NULL}, true, 0, \"#{root_key}\", #{bits}}, #{sick}, #{width}, #{f.(poly)}, #{f.(init)}, #{refin}, #{refout}, #{f.(xorout)}, #{f.(check)}, #{f.(residue)}, {",
+      table_values,
+      "}},"
+    ])
+  end
+
+  def gen(params) do
+    IO.puts(generate(params))
+  end
+
+  @doc false
+  defp parse([key=:width | keys], "width=" <> rest, acc) do
+    {rest, value} = parse_until_whitespace(rest, <<>>)
+    value = :erlang.binary_to_integer(value)
+    acc = Map.put(acc, key, value)
+    parse(keys, rest, acc)
+  end
+  defp parse([key=:poly | keys], "poly=" <> rest, acc) do
+    {rest, "0x" <> value} = parse_until_whitespace(rest, <<>>)
+    value = :binary.decode_unsigned(Base.decode16!(value, case: :mixed), :big)
+    acc = Map.put(acc, key, value)
+    parse(keys, rest, acc)
+  end
+  defp parse([key=:init | keys], "init=" <> rest, acc) do
+    {rest, "0x" <> value} = parse_until_whitespace(rest, <<>>)
+    value = :binary.decode_unsigned(Base.decode16!(value, case: :mixed), :big)
+    acc = Map.put(acc, key, value)
+    parse(keys, rest, acc)
+  end
+  defp parse([key=:refin | keys], "refin=" <> rest, acc) do
+    {rest, value} = parse_until_whitespace(rest, <<>>)
+    value = :erlang.binary_to_atom(value, :unicode)
+    acc = Map.put(acc, key, value)
+    parse(keys, rest, acc)
+  end
+  defp parse([key=:refout | keys], "refout=" <> rest, acc) do
+    {rest, value} = parse_until_whitespace(rest, <<>>)
+    value = :erlang.binary_to_atom(value, :unicode)
+    acc = Map.put(acc, key, value)
+    parse(keys, rest, acc)
+  end
+  defp parse([key=:xorout | keys], "xorout=" <> rest, acc) do
+    {rest, "0x" <> value} = parse_until_whitespace(rest, <<>>)
+    value = :binary.decode_unsigned(Base.decode16!(value, case: :mixed), :big)
+    acc = Map.put(acc, key, value)
+    parse(keys, rest, acc)
+  end
+  defp parse([key=:check | keys], "check=" <> rest, acc) do
+    {rest, "0x" <> value} = parse_until_whitespace(rest, <<>>)
+    value = :binary.decode_unsigned(Base.decode16!(value, case: :mixed), :big)
+    acc = Map.put(acc, key, value)
+    parse(keys, rest, acc)
+  end
+  defp parse([key=:residue | keys], "residue=" <> rest, acc) do
+    {rest, "0x" <> value} = parse_until_whitespace(rest, <<>>)
+    value = :binary.decode_unsigned(Base.decode16!(value, case: :mixed), :big)
+    acc = Map.put(acc, key, value)
+    parse(keys, rest, acc)
+  end
+  defp parse([key=:name | keys], "name=" <> rest, acc) do
+    {rest, value} = parse_until_whitespace(rest, <<>>)
+    name = strip_quotes(value, <<>>)
+    root_key = underscore(value, <<>>)
+    acc = Map.put(acc, key, name)
+    acc = Map.put(acc, :root_key, root_key)
+    parse(keys, rest, acc)
+  end
+  defp parse(keys, << _, rest :: binary() >>, acc) do
+    parse(keys, rest, acc)
+  end
+  defp parse([], <<>>, acc) do
+    acc
+  end
+
+  @doc false
+  defp parse_until_whitespace(<<>>, acc) do
+    {<<>>, acc}
+  end
+  defp parse_until_whitespace(<< ?\s, rest :: binary() >>, acc) do
+    {rest, acc}
+  end
+  defp parse_until_whitespace(<< c, rest :: binary() >>, acc) do
+    parse_until_whitespace(rest, << acc ::binary(), c >>)
+  end
+
+  @doc false
+  defp underscore(<< ?", rest :: binary() >>, acc) do
+    underscore(rest, acc)
+  end
+  defp underscore(<< c, rest :: binary() >>, acc) when c in ?A..?Z do
+    underscore(rest, << acc :: binary(), (c + 32) >>)
+  end
+  defp underscore(<< c, rest :: binary() >>, acc) when c in ?a..?z or c in ?0..?9 do
+    underscore(rest, << acc :: binary(), c >>)
+  end
+  defp underscore(<< c, rest :: binary() >>, acc) when c in [?-, ?/] do
+    underscore(rest, << acc :: binary(), ?_ >>)
+  end
+  defp underscore(<<>>, acc) do
+    acc
+  end
+
+  @doc false
+  defp strip_quotes(<< ?", rest :: binary() >>, acc) do
+    strip_quotes(rest, acc)
+  end
+  defp strip_quotes(<< c, rest :: binary() >>, acc) do
+    strip_quotes(rest, << acc :: binary(), c >>)
+  end
+  defp strip_quotes(<<>>, acc) do
+    acc
+  end
 end
