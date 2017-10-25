@@ -622,7 +622,7 @@ crc_algorithm_residue(const crc_model_t *model, void *value)
             xorout = crc_algorithm_##type##_reflect(xorout, model->width);                                                         \
         }                                                                                                                          \
         /* NOTE: I have no idea why this is necessary for 5 bits... */                                                             \
-        /* NOTE: Also, crc_10_gsm is broken :-( */                                                                                 \
+        /* NOTE: Also, crc_10_gsm, crc_12_gsm are broken :-( */                                                                    \
         if (model->width == 5) {                                                                                                   \
             xorout = (xorout << model->crc_shift);                                                                                 \
         }                                                                                                                          \
