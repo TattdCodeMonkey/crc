@@ -43,7 +43,7 @@ crc_nif_crc_fast_2(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[])
         return out_term;
     }
 
-    xnif_slice_t *slice = xnif_slice_create("crc", &crc_nif_crc_fast_2_func, 0, input.size);
+    xnif_slice_t *slice = xnif_slice_create("crc_fast", &crc_nif_crc_fast_2_func, 0, input.size);
     if (slice == NULL) {
         return enif_make_badarg(env);
     }
@@ -324,7 +324,7 @@ crc_nif_crc_fast_update_2(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[])
     if (new_resource == NULL) {
         return enif_make_badarg(env);
     }
-    xnif_slice_t *slice = xnif_slice_create("crc_update", &crc_nif_crc_fast_update_2_func, 0, input.size);
+    xnif_slice_t *slice = xnif_slice_create("crc_fast_update", &crc_nif_crc_fast_update_2_func, 0, input.size);
     if (slice == NULL) {
         (void)enif_release_resource((void *)new_resource);
         return enif_make_badarg(env);
