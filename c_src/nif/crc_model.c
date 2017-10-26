@@ -178,7 +178,7 @@ crc_model_get(ERL_NIF_TERM key, const crc_model_t **model)
     static inline bool crc_model_##type##_is_match(const crc_model_##type##_t *a, const crc_model_##type##_t *b)                   \
     {                                                                                                                              \
         return (a->sick == b->sick && a->width == b->width && a->poly == b->poly && a->init == b->init && a->refin == b->refin &&  \
-                a->refout == b->refout && a->xorout == b->xorout && a->check == b->check && a->residue == b->residue);             \
+                a->refout == b->refout && a->xorout == b->xorout);                                                                 \
     }
 
 CRC_MODEL_IS_MATCH_DEF(uint8)

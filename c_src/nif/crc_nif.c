@@ -10,6 +10,7 @@
 #include "crc_32.h"
 #include "xnif_slice.h"
 
+static ERL_NIF_TERM ATOM_aliases;
 static ERL_NIF_TERM ATOM_bits;
 static ERL_NIF_TERM ATOM_check;
 static ERL_NIF_TERM ATOM_error;
@@ -42,6 +43,7 @@ static ERL_NIF_TERM crc_nif_crc_residue_1(ErlNifEnv *env, int argc, const ERL_NI
 
 /* NIF Function Definitions */
 
+#include "crc_nif_init.c.h"
 #include "crc_nif_fast.c.h"
 #include "crc_nif_slow.c.h"
 
@@ -144,7 +146,7 @@ crc_nif_crc_info_1(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[])
     val = enif_make_uint(env, (unsigned int)resource->model->bits);
     (void)enif_make_map_put(env, map, key, val, &map);
 
-    key = ATOM_root_key;
+    key = ATOM_key;
     val = resource->model->root_key;
     (void)enif_make_map_put(env, map, key, val, &map);
 
@@ -152,31 +154,49 @@ crc_nif_crc_info_1(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[])
     val = (resource->slow) ? ATOM_true : ATOM_false;
     (void)enif_make_map_put(env, map, key, val, &map);
 
-    key = ATOM_name;
-    val = enif_make_new_map(env);
-    {
+    if (resource->model->root_key != ATOM_nil) {
         ERL_NIF_TERM skey;
         ERL_NIF_TERM sval;
         const crc_linklist_t *anchor = &resource->model->_link;
-        const crc_linklist_t *node = anchor->next;
+        const crc_linklist_t *node = anchor;
         const crc_model_stub_t *stub = NULL;
-        unsigned char *sval_buf = NULL;
-        size_t sval_len = 0;
+        unsigned char *nbuf = NULL;
+        size_t nlen = 0;
+        key = ATOM_name;
+        stub = (void *)node;
+        node = node->next;
+        nlen = strnlen(stub->name, sizeof(stub->name));
+        if (nlen == 0) {
+            val = ATOM_nil;
+        } else {
+            nbuf = enif_make_new_binary(env, nlen, &val);
+            (void)memcpy(nbuf, stub->name, nlen);
+        }
+        (void)enif_make_map_put(env, map, key, val, &map);
+        key = ATOM_aliases;
+        val = enif_make_new_map(env);
         while (node != anchor) {
             stub = (void *)node;
             node = node->next;
             skey = stub->key;
-            sval_len = strnlen(stub->name, sizeof(stub->name));
-            if (sval_len == 0) {
+            nlen = strnlen(stub->name, sizeof(stub->name));
+            if (nlen == 0) {
                 sval = ATOM_nil;
             } else {
-                sval_buf = enif_make_new_binary(env, sval_len, &sval);
-                (void)memcpy(sval_buf, stub->name, sval_len);
+                nbuf = enif_make_new_binary(env, nlen, &sval);
+                (void)memcpy(nbuf, stub->name, nlen);
             }
             (void)enif_make_map_put(env, val, skey, sval, &val);
         }
+        (void)enif_make_map_put(env, map, key, val, &map);
+    } else {
+        key = ATOM_name;
+        val = ATOM_nil;
+        (void)enif_make_map_put(env, map, key, val, &map);
+        key = ATOM_aliases;
+        val = enif_make_new_map(env);
+        (void)enif_make_map_put(env, map, key, val, &map);
     }
-    (void)enif_make_map_put(env, map, key, val, &map);
 
 #define CRC_BUILD_INFO_MAP(type)                                                                                                   \
     do {                                                                                                                           \
@@ -267,20 +287,21 @@ static ERL_NIF_TERM
 crc_nif_crc_residue_1(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[])
 {
     const crc_resource_t *resource = NULL;
-    ERL_NIF_TERM res_term;
-    if (argc != 1) {
+    ERL_NIF_TERM out_term;
+
+    if (argc != 1 || !crc_init(env, argc, argv, true, &resource)) {
         return enif_make_badarg(env);
     }
-    res_term = crc_nif_crc_fast_init_1(env, 1, argv);
-    if (!crc_resource_get(env, res_term, &resource)) {
-        return res_term;
-    }
+
     ErlNifUInt64 value = 0;
     if (!crc_algorithm_residue(resource->model, &value)) {
+        (void)enif_release_resource((void *)resource);
         return enif_make_badarg(env);
     }
-    ERL_NIF_TERM out_term;
+
     out_term = enif_make_uint64(env, value);
+    (void)enif_release_resource((void *)resource);
+
     return out_term;
 }
 
@@ -348,6 +369,7 @@ crc_nif_make_atoms(ErlNifEnv *env)
     {                                                                                                                              \
         Id = enif_make_atom(env, Value);                                                                                           \
     }
+    ATOM(ATOM_aliases, "aliases");
     ATOM(ATOM_bits, "bits");
     ATOM(ATOM_check, "check");
     ATOM(ATOM_error, "error");

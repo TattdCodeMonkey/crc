@@ -90,8 +90,8 @@ crc_algorithm_uint16_final_sick(const crc_model_uint16_t *model, uint16_t *value
     uint16_t new_value;
     uint16_t low_byte;
     uint16_t high_byte;
-    low_byte = (old_value & 0xFF00) >> 8;
-    high_byte = (old_value & 0x00FF) << 8;
+    low_byte = (old_value & 0xff00) >> 8;
+    high_byte = (old_value & 0x00ff) << 8;
     new_value = low_byte | high_byte;
     *value = new_value;
     return 1;

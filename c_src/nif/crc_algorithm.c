@@ -304,6 +304,32 @@ crc_algorithm_residue(const crc_model_t *model, void *value)
 }
 
 #define CRC_ALGORITHM_RESIDUE_DEF(type)                                                                                            \
+    static inline type##_t crc_algorithm_##type##_residue_calc(const crc_model_##type##_t *model, type##_t message)                \
+    {                                                                                                                              \
+        unsigned long max;                                                                                                         \
+        unsigned long iter;                                                                                                        \
+        unsigned long ofs;                                                                                                         \
+        type##_t probe;                                                                                                            \
+        type##_t rem;                                                                                                              \
+        type##_t result;                                                                                                           \
+        max = model->width;                                                                                                        \
+        probe = model->msb_mask;                                                                                                   \
+        rem = model->init;                                                                                                         \
+        for (iter = 0, ofs = 0; iter < max; ++iter, --ofs) {                                                                       \
+            if (!ofs) {                                                                                                            \
+                ofs = model->width;                                                                                                \
+                rem ^= message;                                                                                                    \
+            }                                                                                                                      \
+            if (rem & probe) {                                                                                                     \
+                rem = (rem << 1) ^ model->poly;                                                                                    \
+            } else {                                                                                                               \
+                rem <<= 1;                                                                                                         \
+            }                                                                                                                      \
+        }                                                                                                                          \
+        result = (rem ^ model->xorout) & model->crc_mask;                                                                          \
+        return result;                                                                                                             \
+    }                                                                                                                              \
+                                                                                                                                   \
     inline int crc_algorithm_##type##_residue(const crc_model_##type##_t *model, type##_t *value)                                  \
     {                                                                                                                              \
         int retval;                                                                                                                \
@@ -312,39 +338,31 @@ crc_algorithm_residue(const crc_model_t *model, void *value)
         crc_model_##type##_t mcopy_buff;                                                                                           \
         crc_model_##type##_t *mcopy = &mcopy_buff;                                                                                 \
         (void)memcpy(mcopy, model, sizeof(crc_model_##type##_t));                                                                  \
+        mcopy->init = residue;                                                                                                     \
         mcopy->xorout = 0;                                                                                                         \
-        XNIF_TRACE_F("xorout  = 0x%04x\n", xorout);                                                                                \
         if (model->refout) {                                                                                                       \
             xorout = crc_algorithm_##type##_reflect(xorout, mcopy->width);                                                         \
         }                                                                                                                          \
-        /* NOTE: crc_5_usb, crc_10_gsm, crc_12_gsm, crc_14_gsm, crc_15_mpt1327, crc_16_dect_r are broken :-( */                    \
-        XNIF_TRACE_F("xorout  = 0x%04x (reversed)\n", xorout);                                                                     \
-        /* XNIF_TRACE_F("residue = 0x%04x\n", residue); */                                                                         \
         size_t len = (mcopy->super.bits / 8);                                                                                      \
-        /* XNIF_TRACE_F("len     = %lu\n", len); */                                                                                \
         uint8_t *buf = (void *)&xorout;                                                                                            \
         if (mcopy->sick) {                                                                                                         \
             retval = crc_algorithm_##type##_update_sick(mcopy, buf, len, &residue);                                                \
         } else {                                                                                                                   \
-            retval = crc_algorithm_##type##_update_slow(mcopy, buf, len, &residue);                                                \
+            retval = 1;                                                                                                            \
+            residue = crc_algorithm_##type##_residue_calc(mcopy, xorout);                                                          \
         }                                                                                                                          \
-        XNIF_TRACE_F("residue = 0x%04x\n", residue);                                                                               \
         if (!retval) {                                                                                                             \
             return retval;                                                                                                         \
         }                                                                                                                          \
         if (mcopy->sick) {                                                                                                         \
             retval = crc_algorithm_##type##_final_sick(mcopy, &residue);                                                           \
-        } else {                                                                                                                   \
-            retval = crc_algorithm_##type##_final_slow(mcopy, &residue);                                                           \
+        } else if (mcopy->refin) {                                                                                                 \
+            retval = 1;                                                                                                            \
+            residue = crc_algorithm_##type##_reflect(residue, mcopy->width);                                                       \
         }                                                                                                                          \
         if (!retval) {                                                                                                             \
             return retval;                                                                                                         \
         }                                                                                                                          \
-        XNIF_TRACE_F("residue = 0x%04x (final)\n", residue);                                                                       \
-        /*if (mcopy->refin) {*/                                                                                                    \
-        /*    residue = crc_algorithm_##type##_reflect(residue, mcopy->width);*/                                                   \
-        /*    XNIF_TRACE_F("residue = 0x%04x (reversed)\n", residue);*/                                                            \
-        /*}*/                                                                                                                      \
         *value = residue;                                                                                                          \
         return 1;                                                                                                                  \
     }

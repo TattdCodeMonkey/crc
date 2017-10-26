@@ -152,6 +152,8 @@ crc_resource_create(const crc_resource_t *parent, const crc_model_t *model, bool
         (void)memcpy(&p->model, model, sizeof(p->model));                                                                          \
         p->super.parent = NULL;                                                                                                    \
         p->super.model = &p->model;                                                                                                \
+        p->model.super._link.next = p->model.super._link.prev = NULL;                                                              \
+        (void)crc_linklist_init_anchor(&p->model.super._link);                                                                     \
         p->super.slow = slow;                                                                                                      \
         p->super.value = 0;                                                                                                        \
         (void)crc_algorithm_init((void *)p->super.model, slow, &p->super.value);                                                   \

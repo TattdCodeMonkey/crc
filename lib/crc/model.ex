@@ -12,10 +12,12 @@ defmodule CRC.Model do
     check: 0x0000000000000000..0xffffffffffffffff,
     residue: 0x0000000000000000..0xffffffffffffffff,
     name: binary(),
-    root_key: atom(),
+    key: atom(),
     aliases: %{
       optional(atom()) => binary()
-    }
+    },
+    slow: boolean(),
+    value: non_neg_integer()
   }
 
   defstruct [
@@ -30,8 +32,10 @@ defmodule CRC.Model do
     check: nil,
     residue: nil,
     name: nil,
-    root_key: nil,
-    aliases: %{}
+    key: nil,
+    aliases: %{},
+    slow: false,
+    value: 0
   ]
 
   def decode(binary) when is_binary(binary) do
@@ -62,12 +66,12 @@ defmodule CRC.Model do
   def gen_code(models = [%__MODULE__{} | _]) do
     stubs =
       for model <- models, into: [] do
-        {model.width, model.root_key, gen_stubs(model)}
+        {model.width, model.key, gen_stubs(model)}
       end
       |> :lists.usort()
     tables =
       for model <- models, into: [] do
-        {model.width, model.root_key, gen_tables(model)}
+        {model.width, model.key, gen_tables(model)}
       end
       |> :lists.usort()
     stubs = for {_, _, stub} <- stubs, into: [], do: stub
@@ -79,7 +83,7 @@ defmodule CRC.Model do
     ]
   end
 
-  def gen_stubs(%__MODULE__{ aliases: aliases, name: name, root_key: root_key }) do
+  def gen_stubs(%__MODULE__{ aliases: aliases, name: name, key: root_key }) do
     entries = [
       {root_key, "{{NULL, NULL}, false, 0, \"#{root_key}\", 0, \"#{root_key}\", \"#{name}\"},\n"}
       | (for {key, val} <- aliases, into: [] do
@@ -131,7 +135,7 @@ defmodule CRC.Model do
       else
         ["/* width=", width, " poly=", poly, " init=", init, " refin=", refin, " refout=", refout, " xorout=", xorout, " check=", check, " residue=", residue, " name=", name, aliases, " */\n"]
       end,
-      "{{{NULL, NULL}, true, 0, \"#{model.root_key}\", #{bits}},\n",
+      "{{{NULL, NULL}, true, 0, \"#{model.key}\", #{bits}},\n",
       " #{model.sick},\n",
       " ", width, ",\n",
       " ", poly, ",\n",
@@ -144,12 +148,6 @@ defmodule CRC.Model do
       " {", table_values, "}},\n"
     ]
   end
-
-  # {{NULL, NULL}, false, 0, "crc_16", 0, "arc", "ARC"},
-  # {{NULL, NULL}, false, 0, "crc_16", 0, "crc_16", "CRC-16"},
-  # {{NULL, NULL}, false, 0, "crc_16", 0, "crc_16_arc", "CRC-16/ARC"},
-  # {{NULL, NULL}, false, 0, "crc_16", 0, "crc_16_lha", "CRC-16/LHA"},
-  # {{NULL, NULL}, false, 0, "crc_16", 0, "crc_ibm", "CRC-IBM"},
 
   @doc false
   defp decode_list(data, acc) do
@@ -231,7 +229,7 @@ defmodule CRC.Model do
     {rest, value} = take_until_whitespace(rest, <<>>)
     name = strip_quotes(value, <<>>)
     root_key = :erlang.binary_to_atom(underscore(value, <<>>), :unicode)
-    acc = %{ acc | name: name, root_key: root_key }
+    acc = %{ acc | name: name, key: root_key }
     parse(rest, acc)
   end
   defp parse("alias=" <> rest, acc = %{ aliases: aliases }) do
@@ -276,12 +274,6 @@ defmodule CRC.Model do
   defp decode_hex(value) do
     :erlang.binary_to_integer(value, 16)
   end
-  # defp decode_hex(value) when is_binary(value) and rem(byte_size(value), 2) != 0 do
-  #   decode_hex(<< ?0, value :: binary() >>)
-  # end
-  # defp decode_hex(value) do
-  #   :binary.decode_unsigned(Base.decode16!(value, case: :mixed), :big)
-  # end
 
   @doc false
   defp encode_hex(value, bits) do

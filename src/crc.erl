@@ -3,6 +3,10 @@
 -module(crc).
 
 %% Public API
+-export([crc/2]).
+-export([crc_init/1]).
+-export([crc_update/2]).
+-export([crc_final/1]).
 -export([crc_8/1]).
 -export([crc_8/2]).
 -export([crc_16/1]).
@@ -28,6 +32,22 @@
 %%%===================================================================
 %%% Public API Functions
 %%%===================================================================
+
+-spec crc(crc_algorithm:model(), iodata()) -> crc_algorithm:value().
+crc(Model, Input) ->
+	crc_fast:calc(Model, Input).
+
+-spec crc_init(crc_algorithm:model()) -> crc_algorithm:resource().
+crc_init(Model) ->
+	crc_fast:init(Model).
+
+-spec crc_update(crc_algorithm:resource(), iodata()) -> crc_algorithm:resource().
+crc_update(Resource, Input) ->
+	crc_fast:update(Resource, Input).
+
+-spec crc_final(crc_algorithm:resource()) -> crc_algorithm:value().
+crc_final(Resource) ->
+	crc_fast:final(Resource).
 
 -spec crc_8(binary()) -> uint8_t().
 crc_8(Input) ->

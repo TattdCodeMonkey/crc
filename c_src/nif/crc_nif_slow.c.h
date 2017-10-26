@@ -2,7 +2,6 @@
 // vim: ts=4 sw=4 ft=c++ et
 
 static ERL_NIF_TERM crc_nif_crc_slow_2(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[]);
-static ERL_NIF_TERM crc_nif_crc_slow_init_1(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[]);
 static ERL_NIF_TERM crc_nif_crc_slow_update_2(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[]);
 static ERL_NIF_TERM crc_nif_crc_slow_final_1(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[]);
 
@@ -19,27 +18,26 @@ static ERL_NIF_TERM
 crc_nif_crc_slow_2(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[])
 {
     crc_resource_t *resource = NULL;
-    ERL_NIF_TERM res_term;
     ErlNifBinary input;
-    if (argc != 2 || !enif_inspect_iolist_as_binary(env, argv[1], &input)) {
+    ERL_NIF_TERM out_term;
+
+    if (argc != 2 || !enif_inspect_iolist_as_binary(env, argv[1], &input) ||
+        !crc_init(env, 1, argv, true, (const crc_resource_t **)&resource)) {
         return enif_make_badarg(env);
     }
-    res_term = crc_nif_crc_slow_init_1(env, 1, argv);
-    if (!crc_resource_get(env, res_term, (const crc_resource_t **)&resource)) {
-        return res_term;
-    }
-
-    ERL_NIF_TERM out_term;
 
     if (input.size <= XNIF_SLICE_MAX_PER_SLICE) {
         if (!crc_resource_update_unsafe(resource, (const uint8_t *)input.data, (size_t)input.size)) {
+            (void)enif_release_resource((void *)resource);
             return enif_make_badarg(env);
         }
         ErlNifUInt64 value = 0;
         if (!crc_resource_final(resource, (void *)&value)) {
+            (void)enif_release_resource((void *)resource);
             return enif_make_badarg(env);
         }
         out_term = enif_make_uint64(env, value);
+        (void)enif_release_resource((void *)resource);
         return out_term;
     }
 
@@ -48,8 +46,10 @@ crc_nif_crc_slow_2(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[])
         return enif_make_badarg(env);
     }
     ERL_NIF_TERM newargv[2];
-    newargv[0] = res_term;
+    newargv[0] = enif_make_resource(env, (void *)resource);
     newargv[1] = argv[1];
+    (void)enif_release_resource((void *)resource);
+
     return xnif_slice_schedule(env, slice, 2, newargv);
 }
 
@@ -80,33 +80,6 @@ crc_nif_crc_slow_2_done(ErlNifEnv *env, xnif_slice_t *slice)
         return enif_make_badarg(env);
     }
     out_term = enif_make_uint64(env, value);
-    return out_term;
-}
-
-/* crc_nif:crc_slow_init/1 */
-
-static ERL_NIF_TERM
-crc_nif_crc_slow_init_1(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[])
-{
-    const crc_resource_t *old_resource = NULL;
-    ERL_NIF_TERM res_term;
-    if (argc != 1) {
-        return enif_make_badarg(env);
-    }
-    res_term = crc_nif_crc_fast_init_1(env, 1, argv);
-    if (!crc_resource_get(env, res_term, &old_resource)) {
-        return res_term;
-    }
-
-    crc_resource_t *new_resource = crc_resource_create(old_resource, old_resource->model, true);
-    if (new_resource == NULL) {
-        return enif_make_badarg(env);
-    }
-
-    ERL_NIF_TERM out_term;
-    out_term = enif_make_resource(env, (void *)new_resource);
-    (void)enif_release_resource((void *)new_resource);
-
     return out_term;
 }
 
