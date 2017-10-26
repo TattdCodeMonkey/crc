@@ -11,9 +11,9 @@
 extern "C" {
 #endif
 
-extern int crc_algorithm_init(const crc_model_t *model, bool slow, void *value);
 extern int crc_algorithm_reflect(const crc_model_t *model, void *value, uint8_t width);
 extern int crc_algorithm_compile(crc_model_t *model);
+extern int crc_algorithm_init(const crc_model_t *model, bool slow, void *value);
 extern int crc_algorithm_update(const crc_model_t *model, bool slow, const uint8_t *buf, size_t len, void *value);
 extern int crc_algorithm_final(const crc_model_t *model, bool slow, void *value);
 extern int crc_algorithm_residue(const crc_model_t *model, void *value);

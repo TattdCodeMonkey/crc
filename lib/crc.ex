@@ -117,6 +117,25 @@ defmodule CRC do
     end
   end
 
+  def check_slow() do
+    check_slow(Map.keys(:crc_nif.crc_list()))
+  end
+
+  def check_slow(models) do
+    input = "123456789"
+    for model <- models, into: %{} do
+      context = :crc_nif.crc_slow_init(model)
+      context = :crc_nif.crc_slow_update(context, input)
+      %{ check: check, bits: bits } = :crc_nif.crc_info(context)
+      result = :crc_nif.crc_slow_final(context)
+      if result == check do
+        {model, {true, Base.encode16(<< result :: unsigned-little-integer-unit(1)-size(bits) >>, case: :lower)}}
+      else
+        {model, {false, Base.encode16(<< check :: unsigned-little-integer-unit(1)-size(bits) >>, case: :lower), Base.encode16(<< result :: unsigned-little-integer-unit(1)-size(bits) >>, case: :lower)}}
+      end
+    end
+  end
+
   def residue() do
     residue(Map.keys(:crc_nif.crc_list()))
   end
@@ -140,6 +159,16 @@ defmodule CRC do
 
   def checkbad(models) do
     for {key, val={false, _, _}} <- check(models), into: %{} do
+      {key, val}
+    end
+  end
+
+  def checkslowbad() do
+    checkslowbad(Map.keys(:crc_nif.crc_list()))
+  end
+
+  def checkslowbad(models) do
+    for {key, val={false, _, _}} <- check_slow(models), into: %{} do
       {key, val}
     end
   end
