@@ -156,30 +156,24 @@ crc_nif_crc_info_1(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[])
     (void)enif_make_map_put(env, map, key, val, &map);
 
     if (resource->model->root_key != ATOM_nil) {
+        bool name_stored = false;
         ERL_NIF_TERM skey;
         ERL_NIF_TERM sval;
         const crc_linklist_t *anchor = &resource->model->_link;
-        const crc_linklist_t *node = anchor;
+        const crc_linklist_t *node = anchor->next;
         const crc_model_stub_t *stub = NULL;
         unsigned char *nbuf = NULL;
         size_t nlen = 0;
-        key = ATOM_name;
-        stub = (void *)node;
-        node = node->next;
-        nlen = strnlen(stub->name, sizeof(stub->name));
-        if (nlen == 0) {
-            val = ATOM_nil;
-        } else {
-            nbuf = enif_make_new_binary(env, nlen, &val);
-            (void)memcpy(nbuf, stub->name, nlen);
-        }
-        (void)enif_make_map_put(env, map, key, val, &map);
         key = ATOM_aliases;
         val = enif_make_new_map(env);
         while (node != anchor) {
             stub = (void *)node;
             node = node->next;
-            skey = stub->key;
+            if (!name_stored && stub->key == resource->model->root_key) {
+                skey = ATOM_name;
+            } else {
+                skey = stub->key;
+            }
             nlen = strnlen(stub->name, sizeof(stub->name));
             if (nlen == 0) {
                 sval = ATOM_nil;
@@ -187,9 +181,20 @@ crc_nif_crc_info_1(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[])
                 nbuf = enif_make_new_binary(env, nlen, &sval);
                 (void)memcpy(nbuf, stub->name, nlen);
             }
-            (void)enif_make_map_put(env, val, skey, sval, &val);
+            if (!name_stored && stub->key == resource->model->root_key) {
+                name_stored = true;
+                (void)enif_make_map_put(env, map, skey, sval, &map);
+            } else {
+                (void)enif_make_map_put(env, val, skey, sval, &val);
+            }
         }
         (void)enif_make_map_put(env, map, key, val, &map);
+        if (!name_stored) {
+            key = ATOM_name;
+            val = ATOM_nil;
+            name_stored = true;
+            (void)enif_make_map_put(env, map, key, val, &map);
+        }
     } else {
         key = ATOM_name;
         val = ATOM_nil;
