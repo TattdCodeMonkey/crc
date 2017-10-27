@@ -14,6 +14,7 @@ static ERL_NIF_TERM ATOM_aliases;
 static ERL_NIF_TERM ATOM_bits;
 static ERL_NIF_TERM ATOM_check;
 static ERL_NIF_TERM ATOM_error;
+static ERL_NIF_TERM ATOM_extend;
 static ERL_NIF_TERM ATOM_false;
 static ERL_NIF_TERM ATOM_init;
 static ERL_NIF_TERM ATOM_key;
@@ -373,6 +374,7 @@ crc_nif_make_atoms(ErlNifEnv *env)
     ATOM(ATOM_bits, "bits");
     ATOM(ATOM_check, "check");
     ATOM(ATOM_error, "error");
+    ATOM(ATOM_extend, "extend");
     ATOM(ATOM_false, "false");
     ATOM(ATOM_init, "init");
     ATOM(ATOM_key, "key");

@@ -4,6 +4,7 @@
 static int crc_init(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[], bool slow, const crc_resource_t **resp);
 static int crc_init_atom(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[], bool slow, const crc_resource_t **resp);
 static int crc_init_map(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[], bool slow, const crc_resource_t **resp);
+static int crc_init_map_extend(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[], bool slow, const crc_resource_t **resp);
 static int crc_init_ref(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[], bool slow, const crc_resource_t **resp);
 static int crc_init_tuple(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[], bool slow, const crc_resource_t **resp);
 
@@ -84,8 +85,19 @@ crc_init_map(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[], bool slow, con
 {
     size_t arity;
 
-    if (argc != 1 || !enif_get_map_size(env, argv[0], &arity) || arity < 6) {
+    if (argc != 1 || !enif_get_map_size(env, argv[0], &arity) || arity < 1) {
         return 0;
+    }
+
+    /* Maybe extend pre-defined model */
+
+    ERL_NIF_TERM extend;
+
+    if (enif_get_map_value(env, argv[0], ATOM_extend, &extend)) {
+        ERL_NIF_TERM extargv[2];
+        extargv[0] = extend;
+        extargv[1] = argv[0];
+        return crc_init_map_extend(env, 2, extargv, slow, resp);
     }
 
     /* Required Parameters */
@@ -123,6 +135,95 @@ crc_init_map(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[], bool slow, con
 
     ERL_NIF_TERM newargv[1];
     newargv[0] = enif_make_tuple9(env, width, poly, init, refin, refout, xorout, check, residue, sick);
+    return crc_init_tuple(env, 1, newargv, slow, resp);
+}
+
+static int
+crc_init_map_extend(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[], bool slow, const crc_resource_t **resp)
+{
+    const crc_resource_t *old_resource = NULL;
+    size_t arity;
+
+    if (argc != 2 || !crc_init(env, 1, argv, slow, &old_resource)) {
+        return 0;
+    }
+    if (!enif_get_map_size(env, argv[1], &arity) || arity < 1) {
+        (void)enif_release_resource((void *)old_resource);
+        return 0;
+    }
+
+    /* All keys are optional when extending */
+
+    ERL_NIF_TERM width;
+    ERL_NIF_TERM poly;
+    ERL_NIF_TERM init;
+    ERL_NIF_TERM refin;
+    ERL_NIF_TERM refout;
+    ERL_NIF_TERM xorout;
+    ERL_NIF_TERM check;
+    ERL_NIF_TERM residue;
+    ERL_NIF_TERM sick;
+
+#define CRC_INIT_MAP_EXTEND_CALL(type)                                                                                             \
+    do {                                                                                                                           \
+        const crc_resource_##type##_t *r = (void *)old_resource;                                                                   \
+        if (!enif_get_map_value(env, argv[1], ATOM_width, &width)) {                                                               \
+            width = enif_make_uint(env, (unsigned int)r->model->width);                                                            \
+        }                                                                                                                          \
+        if (!enif_get_map_value(env, argv[1], ATOM_poly, &poly)) {                                                                 \
+            poly = (r->model->width > 32) ? enif_make_uint64(env, (ErlNifUInt64)r->model->poly)                                    \
+                                          : enif_make_uint(env, (unsigned int)r->model->poly);                                     \
+        }                                                                                                                          \
+        if (!enif_get_map_value(env, argv[1], ATOM_init, &init)) {                                                                 \
+            init = (r->model->width > 32) ? enif_make_uint64(env, (ErlNifUInt64)r->model->init)                                    \
+                                          : enif_make_uint(env, (unsigned int)r->model->init);                                     \
+        }                                                                                                                          \
+        if (!enif_get_map_value(env, argv[1], ATOM_refin, &refin)) {                                                               \
+            refin = (r->model->refin) ? ATOM_true : ATOM_false;                                                                    \
+        }                                                                                                                          \
+        if (!enif_get_map_value(env, argv[1], ATOM_refout, &refout)) {                                                             \
+            refout = (r->model->refout) ? ATOM_true : ATOM_false;                                                                  \
+        }                                                                                                                          \
+        if (!enif_get_map_value(env, argv[1], ATOM_xorout, &xorout)) {                                                             \
+            xorout = (r->model->width > 32) ? enif_make_uint64(env, (ErlNifUInt64)r->model->xorout)                                \
+                                            : enif_make_uint(env, (unsigned int)r->model->xorout);                                 \
+        }                                                                                                                          \
+        if (!enif_get_map_value(env, argv[1], ATOM_check, &check)) {                                                               \
+            check = (r->model->width > 32) ? enif_make_uint64(env, (ErlNifUInt64)r->model->check)                                  \
+                                           : enif_make_uint(env, (unsigned int)r->model->check);                                   \
+        }                                                                                                                          \
+        if (!enif_get_map_value(env, argv[1], ATOM_residue, &residue)) {                                                           \
+            residue = (r->model->width > 32) ? enif_make_uint64(env, (ErlNifUInt64)r->model->residue)                              \
+                                             : enif_make_uint(env, (unsigned int)r->model->residue);                               \
+        }                                                                                                                          \
+        if (!enif_get_map_value(env, argv[1], ATOM_sick, &sick)) {                                                                 \
+            sick = (r->model->sick) ? ATOM_true : ATOM_false;                                                                      \
+        }                                                                                                                          \
+    } while (0)
+
+    switch (old_resource->model->bits) {
+    case 8:
+        CRC_INIT_MAP_EXTEND_CALL(uint8);
+        break;
+    case 16:
+        CRC_INIT_MAP_EXTEND_CALL(uint16);
+        break;
+    case 32:
+        CRC_INIT_MAP_EXTEND_CALL(uint32);
+        break;
+    case 64:
+        CRC_INIT_MAP_EXTEND_CALL(uint64);
+        break;
+    default:
+        (void)enif_release_resource((void *)old_resource);
+        return 0;
+    }
+
+#undef CRC_INIT_MAP_EXTEND_CALL
+
+    ERL_NIF_TERM newargv[1];
+    newargv[0] = enif_make_tuple9(env, width, poly, init, refin, refout, xorout, check, residue, sick);
+    (void)enif_release_resource((void *)old_resource);
     return crc_init_tuple(env, 1, newargv, slow, resp);
 }
 

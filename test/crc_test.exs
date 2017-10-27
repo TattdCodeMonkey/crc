@@ -66,6 +66,12 @@ defmodule CRCTest do
     end
   end
 
+  property "new CRC-16/CCITT-FALSE matches old CRC-16/CCITT-FALSE for any init" do
+    forall {init, input} in {integer(0, 0xffff), binary()} do
+      CRC.crc(%{extend: :crc_16_ccitt_false, init: init}, input) === CRC.ccitt_16(input, init)
+    end
+  end
+
   # property "new DNP matches old DNP" do
   #   forall input in binary() do
   #     CRC.crc(:crc_16_dnp, input) === CRC.crc_16_dnp(input)
