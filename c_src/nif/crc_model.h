@@ -27,6 +27,10 @@ typedef struct crc_model_s {
 } crc_model_t;
 
 #define CRC_MODEL_DEF(type)                                                                                                        \
+    typedef struct crc_model_state_##type##_s {                                                                                    \
+        type##_t value;                                                                                                            \
+        type##_t extra;                                                                                                            \
+    } crc_model_state_##type##_t;                                                                                                  \
     typedef struct crc_model_##type##_s {                                                                                          \
         crc_model_t super;                                                                                                         \
         bool sick;                                                                                                                 \

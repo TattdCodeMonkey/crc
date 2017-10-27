@@ -82,7 +82,8 @@ init(Params = {Width, Poly, Init, Refin, Refout, Xorout, Check0, Residue0, Sick0
 				false ->
 					Resource#{ value := crc_init(Resource) };
 				true ->
-					Resource#{ value := sick_init(Resource) }
+					{Value, Extra} = sick_init(Resource),
+					Resource#{ value := Value, extra := Extra }
 			end
 	end;
 init(Key) when is_atom(Key) ->
@@ -111,8 +112,9 @@ init(BadParams) ->
 
 update(Resource=#{ '__struct__' := ?MODULE, value := Value, sick := false }, Iodata) ->
 	Resource#{ value := crc_update(Resource, Value, erlang:iolist_to_binary(Iodata)) };
-update(Resource=#{ '__struct__' := ?MODULE, value := Value, sick := true }, Iodata) ->
-	Resource#{ value := sick_update(Resource, Value, erlang:iolist_to_binary(Iodata)) }.
+update(Resource=#{ '__struct__' := ?MODULE, value := Value, extra := Extra, sick := true }, Iodata) ->
+	{NewValue, NewExtra} = sick_update(Resource, {Value, Extra}, erlang:iolist_to_binary(Iodata)),
+	Resource#{ value := NewValue, extra := NewExtra }.
 
 final(Resource=#{ '__struct__' := ?MODULE, value := Value, sick := false }) ->
 	crc_final(Resource, Value);
@@ -154,7 +156,8 @@ residue(Resource=#{ '__struct__' := ?MODULE, width := Width, refout := Refout, x
 			false -> Xorout0
 		end,
 	Copy = Resource#{ init := 0, xorout := 0, value := 0 },
-	sick_final(Copy, sick_update(Copy, 0, << Xorout:Width >>));
+	{CRC, _Extra} = sick_update(Copy, {0, 0}, << Xorout:Width >>),
+	sick_final(Copy, CRC);
 residue(Params) ->
 	residue(init(Params)).
 
@@ -177,7 +180,8 @@ residue(Params) ->
 		msb_mask => nil,
 		crc_mask => nil,
 		crc_shift => nil,
-		value => nil
+		value => nil,
+		extra => nil
 	}.
 
 '__struct__'(List) when is_list(List) ->
@@ -252,20 +256,20 @@ sick_init(#{
 	width := 16,
 	init := Init
 }) ->
-	Init;
+	{Init, 0};
 sick_init(Params) ->
 	erlang:error({badarg, [Params]}).
 
-sick_update(#{ width := 16 }, CRC, <<>>) ->
-	CRC;
+sick_update(#{ width := 16 }, {CRC, PrevByte}, <<>>) ->
+	{CRC, PrevByte};
 sick_update(#{
 	width := 16,
 	poly := Poly,
 	msb_mask := MSBMask,
 	crc_mask := CRCMask,
 	crc_shift := CRCShift
-}, CRC, Rest) ->
-	do_sick_update(CRC, Rest, 0, Poly, MSBMask, CRCMask, CRCShift);
+}, {CRC, PrevByte}, Rest) ->
+	do_sick_update(CRC, Rest, PrevByte, Poly, MSBMask, CRCMask, CRCShift);
 sick_update(Params, CRC, Rest) ->
 	erlang:error({badarg, [Params, CRC, Rest]}).
 
@@ -382,5 +386,5 @@ do_sick_update(CRC0, << NextByte0, Rest/binary >>, PrevByte0, Poly, MSBMask, CRC
 	CRC2 = CRC1 bxor (NextByte1 bor PrevByte0),
 	PrevByte1 = NextByte1 bsl 8,
 	do_sick_update(CRC2, Rest, PrevByte1, Poly, MSBMask, CRCMask, CRCShift);
-do_sick_update(CRC, <<>>, _PrevByte, _Poly, _MSBMask, CRCMask, _CRCShift) ->
-	CRC band CRCMask.
+do_sick_update(CRC, <<>>, PrevByte, _Poly, _MSBMask, CRCMask, _CRCShift) ->
+	{CRC band CRCMask, PrevByte}.

@@ -56,7 +56,14 @@ verify_check(Module, Models, Options) ->
 	Reports = [begin
 		Resource0 = Module:init(Model),
 		#{ check := Check } = Module:info(Resource0),
-		Resource1 = Module:update(Resource0, Message),
+		Resource1 =
+			case Message of
+				<< Head:4/binary, Tail/binary >> ->
+					Resource1A = Module:update(Resource0, Head),
+					Module:update(Resource1A, Tail);
+				_ ->
+					Module:update(Resource0, Message)
+			end,
 		Challenge0 = Module:final(Resource1),
 		Challenge1 = Module:calc(Model, Message),
 		#{

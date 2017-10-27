@@ -138,15 +138,15 @@ CRC_ALGORITHM_COMPILE_DEF(uint64)
 
 /* crc_algorithm_init/2 */
 
-static int crc_algorithm_uint8_init(const crc_model_uint8_t *model, bool slow, uint8_t *value);
-static int crc_algorithm_uint16_init(const crc_model_uint16_t *model, bool slow, uint16_t *value);
-static int crc_algorithm_uint32_init(const crc_model_uint32_t *model, bool slow, uint32_t *value);
-static int crc_algorithm_uint64_init(const crc_model_uint64_t *model, bool slow, uint64_t *value);
+static int crc_algorithm_uint8_init(const crc_model_uint8_t *model, bool slow, crc_model_state_uint8_t *state);
+static int crc_algorithm_uint16_init(const crc_model_uint16_t *model, bool slow, crc_model_state_uint16_t *state);
+static int crc_algorithm_uint32_init(const crc_model_uint32_t *model, bool slow, crc_model_state_uint32_t *state);
+static int crc_algorithm_uint64_init(const crc_model_uint64_t *model, bool slow, crc_model_state_uint64_t *state);
 
 int
-crc_algorithm_init(const crc_model_t *model, bool slow, void *value)
+crc_algorithm_init(const crc_model_t *model, bool slow, void *state)
 {
-#define CRC_ALGORITHM_INIT_CALL(type) return crc_algorithm_##type##_init((void *)model, slow, (type##_t *)value)
+#define CRC_ALGORITHM_INIT_CALL(type) return crc_algorithm_##type##_init((void *)model, slow, (void *)state)
 
     switch (model->bits) {
     case 8:
@@ -171,14 +171,14 @@ crc_algorithm_init(const crc_model_t *model, bool slow, void *value)
 }
 
 #define CRC_ALGORITHM_INIT_DEF(type)                                                                                               \
-    inline int crc_algorithm_##type##_init(const crc_model_##type##_t *model, bool slow, type##_t *value)                          \
+    inline int crc_algorithm_##type##_init(const crc_model_##type##_t *model, bool slow, crc_model_state_##type##_t *state)        \
     {                                                                                                                              \
         if (model->sick) {                                                                                                         \
-            return crc_algorithm_##type##_init_sick(model, value);                                                                 \
+            return crc_algorithm_##type##_init_sick(model, &state->value, &state->extra);                                          \
         } else if (slow) {                                                                                                         \
-            return crc_algorithm_##type##_init_slow(model, value);                                                                 \
+            return crc_algorithm_##type##_init_slow(model, &state->value);                                                         \
         } else {                                                                                                                   \
-            return crc_algorithm_##type##_init_fast(model, value);                                                                 \
+            return crc_algorithm_##type##_init_fast(model, &state->value);                                                         \
         }                                                                                                                          \
     }
 
@@ -191,26 +191,30 @@ CRC_ALGORITHM_INIT_DEF(uint64)
 
 /* crc_algorithm_update/4 */
 
-static int crc_algorithm_uint8_update(const crc_model_uint8_t *model, bool slow, const uint8_t *buf, size_t len, uint8_t *value);
-static int crc_algorithm_uint16_update(const crc_model_uint16_t *model, bool slow, const uint8_t *buf, size_t len, uint16_t *value);
-static int crc_algorithm_uint32_update(const crc_model_uint32_t *model, bool slow, const uint8_t *buf, size_t len, uint32_t *value);
-static int crc_algorithm_uint64_update(const crc_model_uint64_t *model, bool slow, const uint8_t *buf, size_t len, uint64_t *value);
+static int crc_algorithm_uint8_update(const crc_model_uint8_t *model, bool slow, const uint8_t *buf, size_t len,
+                                      crc_model_state_uint8_t *state);
+static int crc_algorithm_uint16_update(const crc_model_uint16_t *model, bool slow, const uint8_t *buf, size_t len,
+                                       crc_model_state_uint16_t *state);
+static int crc_algorithm_uint32_update(const crc_model_uint32_t *model, bool slow, const uint8_t *buf, size_t len,
+                                       crc_model_state_uint32_t *state);
+static int crc_algorithm_uint64_update(const crc_model_uint64_t *model, bool slow, const uint8_t *buf, size_t len,
+                                       crc_model_state_uint64_t *state);
 
 int
-crc_algorithm_update(const crc_model_t *model, bool slow, const uint8_t *buf, size_t len, void *value)
+crc_algorithm_update(const crc_model_t *model, bool slow, const uint8_t *buf, size_t len, void *state)
 {
     if (len == 0) {
         return 1;
     }
     switch (model->bits) {
     case 8:
-        return crc_algorithm_uint8_update((void *)model, slow, buf, len, (uint8_t *)value);
+        return crc_algorithm_uint8_update((void *)model, slow, buf, len, (void *)state);
     case 16:
-        return crc_algorithm_uint16_update((void *)model, slow, buf, len, (uint16_t *)value);
+        return crc_algorithm_uint16_update((void *)model, slow, buf, len, (void *)state);
     case 32:
-        return crc_algorithm_uint32_update((void *)model, slow, buf, len, (uint32_t *)value);
+        return crc_algorithm_uint32_update((void *)model, slow, buf, len, (void *)state);
     case 64:
-        return crc_algorithm_uint64_update((void *)model, slow, buf, len, (uint64_t *)value);
+        return crc_algorithm_uint64_update((void *)model, slow, buf, len, (void *)state);
     default:
         return 0;
     }
@@ -218,14 +222,14 @@ crc_algorithm_update(const crc_model_t *model, bool slow, const uint8_t *buf, si
 
 #define CRC_ALGORITHM_UPDATE_DEF(type)                                                                                             \
     inline int crc_algorithm_##type##_update(const crc_model_##type##_t *model, bool slow, const uint8_t *buf, size_t len,         \
-                                             type##_t *value)                                                                      \
+                                             crc_model_state_##type##_t *state)                                                    \
     {                                                                                                                              \
         if (model->sick) {                                                                                                         \
-            return crc_algorithm_##type##_update_sick(model, buf, len, value);                                                     \
+            return crc_algorithm_##type##_update_sick(model, buf, len, &state->value, &state->extra);                              \
         } else if (slow) {                                                                                                         \
-            return crc_algorithm_##type##_update_slow(model, buf, len, value);                                                     \
+            return crc_algorithm_##type##_update_slow(model, buf, len, &state->value);                                             \
         } else {                                                                                                                   \
-            return crc_algorithm_##type##_update_fast(model, buf, len, value);                                                     \
+            return crc_algorithm_##type##_update_fast(model, buf, len, &state->value);                                             \
         }                                                                                                                          \
     }
 
@@ -238,37 +242,37 @@ CRC_ALGORITHM_UPDATE_DEF(uint64)
 
 /* crc_algorithm_final/2 */
 
-static int crc_algorithm_uint8_final(const crc_model_uint8_t *model, bool slow, uint8_t *value);
-static int crc_algorithm_uint16_final(const crc_model_uint16_t *model, bool slow, uint16_t *value);
-static int crc_algorithm_uint32_final(const crc_model_uint32_t *model, bool slow, uint32_t *value);
-static int crc_algorithm_uint64_final(const crc_model_uint64_t *model, bool slow, uint64_t *value);
+static int crc_algorithm_uint8_final(const crc_model_uint8_t *model, bool slow, crc_model_state_uint8_t *state);
+static int crc_algorithm_uint16_final(const crc_model_uint16_t *model, bool slow, crc_model_state_uint16_t *state);
+static int crc_algorithm_uint32_final(const crc_model_uint32_t *model, bool slow, crc_model_state_uint32_t *state);
+static int crc_algorithm_uint64_final(const crc_model_uint64_t *model, bool slow, crc_model_state_uint64_t *state);
 
 int
 crc_algorithm_final(const crc_model_t *model, bool slow, void *value)
 {
     switch (model->bits) {
     case 8:
-        return crc_algorithm_uint8_final((void *)model, slow, (uint8_t *)value);
+        return crc_algorithm_uint8_final((void *)model, slow, (void *)value);
     case 16:
-        return crc_algorithm_uint16_final((void *)model, slow, (uint16_t *)value);
+        return crc_algorithm_uint16_final((void *)model, slow, (void *)value);
     case 32:
-        return crc_algorithm_uint32_final((void *)model, slow, (uint32_t *)value);
+        return crc_algorithm_uint32_final((void *)model, slow, (void *)value);
     case 64:
-        return crc_algorithm_uint64_final((void *)model, slow, (uint64_t *)value);
+        return crc_algorithm_uint64_final((void *)model, slow, (void *)value);
     default:
         return 0;
     }
 }
 
 #define CRC_ALGORITHM_FINAL_DEF(type)                                                                                              \
-    inline int crc_algorithm_##type##_final(const crc_model_##type##_t *model, bool slow, type##_t *value)                         \
+    inline int crc_algorithm_##type##_final(const crc_model_##type##_t *model, bool slow, crc_model_state_##type##_t *state)       \
     {                                                                                                                              \
         if (model->sick) {                                                                                                         \
-            return crc_algorithm_##type##_final_sick(model, value);                                                                \
+            return crc_algorithm_##type##_final_sick(model, &state->value, &state->extra);                                         \
         } else if (slow) {                                                                                                         \
-            return crc_algorithm_##type##_final_slow(model, value);                                                                \
+            return crc_algorithm_##type##_final_slow(model, &state->value);                                                        \
         } else {                                                                                                                   \
-            return crc_algorithm_##type##_final_fast(model, value);                                                                \
+            return crc_algorithm_##type##_final_fast(model, &state->value);                                                        \
         }                                                                                                                          \
     }
 
@@ -335,6 +339,7 @@ crc_algorithm_residue(const crc_model_t *model, void *value)
         int retval;                                                                                                                \
         type##_t xorout = model->xorout;                                                                                           \
         type##_t residue = 0;                                                                                                      \
+        type##_t extra = 0;                                                                                                        \
         crc_model_##type##_t mcopy_buff;                                                                                           \
         crc_model_##type##_t *mcopy = &mcopy_buff;                                                                                 \
         (void)memcpy(mcopy, model, sizeof(crc_model_##type##_t));                                                                  \
@@ -346,7 +351,7 @@ crc_algorithm_residue(const crc_model_t *model, void *value)
         size_t len = (mcopy->super.bits / 8);                                                                                      \
         uint8_t *buf = (void *)&xorout;                                                                                            \
         if (mcopy->sick) {                                                                                                         \
-            retval = crc_algorithm_##type##_update_sick(mcopy, buf, len, &residue);                                                \
+            retval = crc_algorithm_##type##_update_sick(mcopy, buf, len, &residue, &extra);                                        \
         } else {                                                                                                                   \
             retval = 1;                                                                                                            \
             residue = crc_algorithm_##type##_residue_calc(mcopy, xorout);                                                          \
@@ -355,7 +360,7 @@ crc_algorithm_residue(const crc_model_t *model, void *value)
             return retval;                                                                                                         \
         }                                                                                                                          \
         if (mcopy->sick) {                                                                                                         \
-            retval = crc_algorithm_##type##_final_sick(mcopy, &residue);                                                           \
+            retval = crc_algorithm_##type##_final_sick(mcopy, &residue, &extra);                                                   \
         } else if (mcopy->refin) {                                                                                                 \
             retval = 1;                                                                                                            \
             residue = crc_algorithm_##type##_reflect(residue, mcopy->width);                                                       \

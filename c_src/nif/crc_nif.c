@@ -243,8 +243,8 @@ crc_nif_crc_info_1(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[])
         (void)enif_make_map_put(env, map, key, val, &map);                                                                         \
                                                                                                                                    \
         key = ATOM_value;                                                                                                          \
-        val = (resource->model->bits > 32) ? enif_make_uint64(env, (ErlNifUInt64)p->value)                                         \
-                                           : enif_make_uint(env, (unsigned int)p->value);                                          \
+        val = (resource->model->bits > 32) ? enif_make_uint64(env, (ErlNifUInt64)p->state.value)                                   \
+                                           : enif_make_uint(env, (unsigned int)p->state.value);                                    \
         (void)enif_make_map_put(env, map, key, val, &map);                                                                         \
     } while (0)
 

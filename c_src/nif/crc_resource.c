@@ -60,8 +60,8 @@ crc_resource_create_child(const crc_resource_t *parent, bool slow)
         p->parent = (void *)parent;                                                                                                \
         p->model = (void *)parent->model;                                                                                          \
         p->slow = slow;                                                                                                            \
-        p->value = 0;                                                                                                              \
-        (void)crc_algorithm_init((void *)p->model, slow, &p->value);                                                               \
+        p->state.value = p->state.extra = 0;                                                                                       \
+        (void)crc_algorithm_init((void *)p->model, slow, &p->state);                                                               \
         resource = (void *)p;                                                                                                      \
     } while (0)
 
@@ -102,8 +102,8 @@ crc_resource_create_reference(const crc_model_t *model, bool slow)
         p->parent = NULL;                                                                                                          \
         p->model = (void *)model;                                                                                                  \
         p->slow = slow;                                                                                                            \
-        p->value = 0;                                                                                                              \
-        (void)crc_algorithm_init((void *)p->model, slow, &p->value);                                                               \
+        p->state.value = p->state.extra = 0;                                                                                       \
+        (void)crc_algorithm_init((void *)p->model, slow, &p->state);                                                               \
         resource = (void *)p;                                                                                                      \
     } while (0)
 
@@ -155,8 +155,8 @@ crc_resource_create(const crc_resource_t *parent, const crc_model_t *model, bool
         p->model.super._link.next = p->model.super._link.prev = NULL;                                                              \
         (void)crc_linklist_init_anchor(&p->model.super._link);                                                                     \
         p->super.slow = slow;                                                                                                      \
-        p->super.value = 0;                                                                                                        \
-        (void)crc_algorithm_init((void *)p->super.model, slow, &p->super.value);                                                   \
+        p->super.state.value = p->super.state.extra = 0;                                                                           \
+        (void)crc_algorithm_init((void *)p->super.model, slow, &p->super.state);                                                   \
         resource = (void *)p;                                                                                                      \
     } while (0)
 
@@ -200,7 +200,7 @@ crc_resource_clone(const crc_resource_t *parent)
         cp->parent = (void *)parent;                                                                                               \
         cp->model = (void *)parent->model;                                                                                         \
         cp->slow = parent->slow;                                                                                                   \
-        cp->value = pp->value;                                                                                                     \
+        cp->state = pp->state;                                                                                                     \
         resource = (void *)cp;                                                                                                     \
     } while (0)
 
@@ -252,7 +252,7 @@ crc_resource_update(const crc_resource_t *old_resource, const uint8_t *buf, size
         return 0;
     }
     *new_resource = NULL;
-    crc_resource_t *resource = crc_resource_create(old_resource, old_resource->model, old_resource->slow);
+    crc_resource_t *resource = crc_resource_clone(old_resource);
     if (resource == NULL) {
         return 0;
     }
@@ -270,7 +270,7 @@ crc_resource_update_unsafe(crc_resource_t *resource, const uint8_t *buf, size_t 
 #define CRC_RESOURCE_UPDATE_CALL(type)                                                                                             \
     do {                                                                                                                           \
         crc_resource_##type##_t *r = (void *)resource;                                                                             \
-        return crc_algorithm_update(resource->model, resource->slow, buf, len, (void *)&r->value);                                 \
+        return crc_algorithm_update(resource->model, resource->slow, buf, len, (void *)&r->state);                                 \
     } while (0)
 
     switch (resource->model->bits) {
@@ -298,12 +298,19 @@ crc_resource_update_unsafe(crc_resource_t *resource, const uint8_t *buf, size_t 
 int
 crc_resource_final(const crc_resource_t *resource, void *value)
 {
+    int retval = 0;
+
 #define CRC_RESOURCE_FINAL_CALL(type)                                                                                              \
     do {                                                                                                                           \
         crc_resource_##type##_t *r = (void *)resource;                                                                             \
         type##_t *new_value = (type##_t *)value;                                                                                   \
-        *new_value = r->value;                                                                                                     \
-        return crc_algorithm_final(resource->model, resource->slow, new_value);                                                    \
+        crc_model_state_##type##_t s_buff;                                                                                         \
+        crc_model_state_##type##_t *s = &s_buff;                                                                                   \
+        s_buff = r->state;                                                                                                         \
+        retval = crc_algorithm_final(resource->model, resource->slow, (void *)s);                                                  \
+        if (retval) {                                                                                                              \
+            *new_value = s->value;                                                                                                 \
+        }                                                                                                                          \
     } while (0)
 
     switch (resource->model->bits) {
@@ -325,5 +332,5 @@ crc_resource_final(const crc_resource_t *resource, void *value)
 
 #undef CRC_RESOURCE_FINAL_CALL
 
-    return 0;
+    return retval;
 }

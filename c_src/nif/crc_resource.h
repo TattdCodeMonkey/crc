@@ -22,7 +22,7 @@ struct crc_resource_s {
         const crc_resource_##type##_t *parent;                                                                                     \
         const crc_model_##type##_t *model;                                                                                         \
         bool slow;                                                                                                                 \
-        type##_t value;                                                                                                            \
+        crc_model_state_##type##_t state;                                                                                          \
     };                                                                                                                             \
     typedef struct crc_resource_embed_##type##_s crc_resource_embed_##type##_t;                                                    \
     struct crc_resource_embed_##type##_s {                                                                                         \
