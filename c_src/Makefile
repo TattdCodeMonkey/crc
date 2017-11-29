@@ -167,7 +167,7 @@ $(C_SRC_NIF_FILE): $(NIF_OBJECTS)
 clean:: clean-c_src
 
 clean-c_src:
-	$(gen_verbose) rm -f $(C_SRC_NIF_FILE) $(NIF_OBJECTS)
+	$(gen_verbose) rm -f $(C_SRC_NIF_FILE) $(NIF_OBJECTS) $(C_SRC_ENV)
 
 $(C_SRC_ENV):
 	$(verbose) $(ERL) -eval "file:write_file(\"$(call core_native_path,$(C_SRC_ENV))\", \

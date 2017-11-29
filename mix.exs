@@ -1,10 +1,8 @@
-defmodule CRC.Mixfile do
-  use Mix.Project
-
+defmodule CRC.Mixfile do use Mix.Project 
   def project() do
     [
       app: :crc,
-      version: "0.7.0",
+      version: "0.7.1",
       elixir: ">= 1.0.0 and < 2.0.0",
       elixirc_paths: elixirc_paths(Mix.env()),
       build_embedded: Mix.env() == :prod,
@@ -21,25 +19,12 @@ defmodule CRC.Mixfile do
     ]
   end
 
-  # Configuration for the OTP application
-  #
-  # Type "mix help compile.app" for more information
   def application() do
-    # Specify extra applications you'll use from Erlang/Elixir
     [
       extra_applications: []
     ]
   end
 
-  # Dependencies can be Hex packages:
-  #
-  #   {:my_dep, "~> 0.3.0"}
-  #
-  # Or git/path repositories:
-  #
-  #   {:my_dep, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"}
-  #
-  # Type "mix help deps" for more examples and options
   defp deps() do
     [
       {:credo, "~> 0.8", only: [:dev, :test], runtime: false},
@@ -63,11 +48,13 @@ defmodule CRC.Mixfile do
     [
       name: :crc,
       files: [
-        "c_src",
+        "c_src/nif/*.c",
+        "c_src/nif/*.h",
+        "c_src/Makefile",
+        "c_src/Makefile.win",
         "lib",
         "LICENSE*",
         "mix.exs",
-        "priv",
         "README*",
         "rebar.config",
         "src"
