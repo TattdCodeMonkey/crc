@@ -30,6 +30,12 @@ defmodule CRC_16_Test do
     assert CRC.ccitt_16(@test_data_01) == 0x29B1
   end
 
+  test "calculate correct CRC-16 ccitt with large input" do
+    large_input = :binary.copy(@test_data_01, 1024 * 40 + 1)
+    assert CRC.ccitt_16(large_input) == 0x00
+  end
+
+
   test "calculate correct CRC-16 ccitt with default 0xFFFF - test data 2" do
     assert CRC.ccitt_16(@test_data_02) == 0x8796
   end
