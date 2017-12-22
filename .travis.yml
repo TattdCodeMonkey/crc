@@ -4,6 +4,10 @@ elixir:
 otp_release:
   - 20.0
 sudo: false
+before_install:
+  - wget https://github.com/tpircher/pycrc/archive/v0.9.1.zip
+  - unzip v0.9.1.zip
+  - export PYCRC_BIN=./pycrc-0.9.1/pycrc.py
 script:
   - mix test
 after_script:

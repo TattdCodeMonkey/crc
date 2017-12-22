@@ -30,6 +30,12 @@ defmodule CRC_16_Test do
     assert CRC.ccitt_16(@test_data_01) == 0x29B1
   end
 
+  test "calculate correct CRC-16 ccitt with large input" do
+    large_input = :binary.copy(@test_data_01, 1024 * 40 + 1)
+    assert CRC.ccitt_16(large_input) == 0xBE01
+  end
+
+
   test "calculate correct CRC-16 ccitt with default 0xFFFF - test data 2" do
     assert CRC.ccitt_16(@test_data_02) == 0x8796
   end
@@ -52,11 +58,11 @@ defmodule CRC_16_Test do
 
   # DNP
   test "calcuate correct CRC-16 DNP" do
-    assert CRC.crc_16_dnp(@test_data_01) == 0x82EA
+    assert CRC.crc_16_dnp(@test_data_01) == 0xEA82
   end
 
   test "calculate correct CRC-16 DNP - test data 2" do
-    assert CRC.crc_16_dnp(@test_data_02) == 0xDAC1
+    assert CRC.crc_16_dnp(@test_data_02) == 0xC1DA
   end
 
   # Kermit

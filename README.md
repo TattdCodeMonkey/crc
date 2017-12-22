@@ -18,21 +18,11 @@ CRC implementations have been tested against these online calculators to validat
 
 ```elixir
   def deps do
-    [{:crc, "~> 0.7"}]
+    [{:crc, "~> 0.8"}]
   end
 ```
 
 ## Supported algorithms
 
-- CRC-8 (Koopman)
-- CRC-16 (ANSI)
-- CCITT-16
-- CCITT-16 X-modem
-- CCITT-16 1-DOF
-- CRC-16 modbus
-- CRC-16 KERMIT
-- CRC-16 SICK
-- CRC-16 DNP
-- CRC-32
-- XOR Checksum
+- See [crc_model_<type>.c.h](/c_src/nif) files
 
