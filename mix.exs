@@ -3,7 +3,7 @@ defmodule CRC.Mixfile do use Mix.Project
     [
       app: :crc,
       version: "0.8.0",
-      elixir: ">= 1.0.0 and < 2.0.0",
+      elixir: ">= 1.4.2 and < 2.0.0",
       elixirc_paths: elixirc_paths(Mix.env()),
       build_embedded: Mix.env() == :prod,
       start_permanent: Mix.env() == :prod,
