@@ -72,12 +72,6 @@ defmodule CRCTest do
     end
   end
 
-  property "new DNP matches old DNP" do
-    forall input in binary() do
-      CRC.crc(:crc_16_dnp, input) === :binary.decode_unsigned(<< (CRC.crc_16_dnp(input)) :: unsigned-little-integer-unit(16)-size(1) >>, :big)
-    end
-  end
-
   property "new KERMIT matches old KERMIT" do
     forall input in binary() do
       CRC.crc(:kermit, input) === CRC.ccitt_16_kermit(input)
