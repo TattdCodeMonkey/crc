@@ -24,6 +24,14 @@ defmodule CRC do
   defdelegate crc_final(resource), to: :crc
 
   @doc """
+  Returns a list of all the pre-defined CRC models
+  """
+  def list() do
+    :crc_nif.crc_list()
+    |> Map.to_list()
+  end
+
+  @doc """
   Calculates a 8-bit CRC with polynomial x^8+x^6+x^3+x^2+1, 0x14D.
   Chosen based on Koopman, et al. (0xA6 in his notation = 0x14D >> 1):
   http://www.ece.cmu.edu/~koopman/roses/dsn04/koopman04_crc_poly_embedded.pdf
