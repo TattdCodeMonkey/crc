@@ -19,7 +19,7 @@ This module is used to calculate CRC (Cyclic Redundancy Check) values for binary
 
 ## Supported algorithms (models)
 
-- Run `CRC.list/0` to get a full list of all pre-defined models
+Run `CRC.list/0` to get a full list of all pre-defined models or `CRC.list/1` with a filter to search for a pre-defined model.
 
 ## Usage
 
