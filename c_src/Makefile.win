@@ -18,7 +18,10 @@ NIF_SRC=\
   nif\crc_16_modbus.c\
   nif\crc_16_sick.c\
   nif\crc_32.c\
-  nif\crc_nif.c
+  nif\crc_nif.c\
+  nif\crc_algorithm.c\
+  nif\crc_model.c\
+  nif\crc_resource.c
 
 all: app
 
@@ -28,7 +31,7 @@ Makefile.auto.win:
 
 !IFDEF ERTS_INCLUDE_PATH
 app:
-  $(CC) $(CFLAGS) /I"$(ERTS_INCLUDE_PATH)" /LD /MD /F"..\priv\crc_nif.dll" $(NIF_SRC)
+  $(CC) $(CFLAGS) /I"$(ERTS_INCLUDE_PATH)" /LD /MD /Fe"..\priv\crc_nif.dll" $(NIF_SRC)
 !ELSE
 app: Makefile.auto.win
 	$(NMAKE) /F Makefile.win app
