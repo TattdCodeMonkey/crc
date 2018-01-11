@@ -2,7 +2,7 @@ defmodule CRC.Mixfile do use Mix.Project
   def project() do
     [
       app: :crc,
-      version: "0.8.0",
+      version: "0.8.1",
       elixir: ">= 1.4.2 and < 2.0.0",
       elixirc_paths: elixirc_paths(Mix.env()),
       build_embedded: Mix.env() == :prod,
@@ -27,7 +27,6 @@ defmodule CRC.Mixfile do use Mix.Project
 
   defp deps() do
     [
-      {:credo, "~> 0.8", only: [:dev, :test], runtime: false},
       {:elixir_make, "~> 0.4", runtime: false},
       {:ex_doc, "~> 0.18", only: :dev},
       {:propcheck, "~> 1.0", only: :test}

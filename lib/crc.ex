@@ -23,6 +23,34 @@ defmodule CRC do
   @spec crc_final(:crc_algorithm.resource()) :: :crc_algorithm.value()
   defdelegate crc_final(resource), to: :crc
 
+  @model_list :crc_nif.crc_list() |> Map.to_list() |> Enum.map(fn {model, map} -> {model, Map.get(map, model)} end)
+  @doc """
+  Returns a list of all the pre-defined CRC models
+  """
+  @spec list() :: [{atom, String.t}]
+  def list() do
+    @model_list
+  end
+
+  @doc """
+  Returns a list of all pre-defined CRC Models that match the filter given.
+
+  Filter is compiled into a regular expression and matched against the model name
+  and description.
+  """
+  @spec list(binary) :: [{atom, String.t}]
+  def list(filter) do
+    @model_list
+    |> Enum.filter(&(list_filter(&1, filter)))
+  end
+
+  defp list_filter({model_atom, model_name}, filter) do
+    atom_string = Atom.to_string(model_atom)
+
+    {:ok, rfilter} = Regex.compile(filter)
+    Regex.match?(rfilter, atom_string) or Regex.match?(rfilter, model_name)
+  end
+
   @doc """
   Calculates a 8-bit CRC with polynomial x^8+x^6+x^3+x^2+1, 0x14D.
   Chosen based on Koopman, et al. (0xA6 in his notation = 0x14D >> 1):
