@@ -25,9 +25,12 @@ erl_crash.dump
 /.idea
 /c_src/env.mk
 /c_src/Makefile.auto.win
+/c_src/*.obj
 /ebin
 /logs
 /priv/*.dll
+/priv/*.lib
+/priv/*.exp
 /priv/*.dylib
 /priv/*.so
 /crc.d
