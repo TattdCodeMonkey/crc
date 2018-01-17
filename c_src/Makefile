@@ -88,8 +88,8 @@ ifneq ($(PLATFORM),msys2)
 	CXXFLAGS += -fPIC
 endif
 
-ifneq ($(CROSSCOMPILE),)
-	CC = $(CROSSCOMPILE)-gcc
+ifneq ($(CROSSCOMPILER),)
+	CC = $(CROSSCOMPILER)gcc
 endif
 
 CFLAGS += -I"$(ERTS_INCLUDE_DIR)" -I"$(ERL_INTERFACE_INCLUDE_DIR)"
