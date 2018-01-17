@@ -23,13 +23,14 @@ defmodule CRC do
   @spec crc_final(:crc_algorithm.resource()) :: :crc_algorithm.value()
   defdelegate crc_final(resource), to: :crc
 
-  @model_list :crc_nif.crc_list() |> Map.to_list() |> Enum.map(fn {model, map} -> {model, Map.get(map, model)} end)
   @doc """
   Returns a list of all the pre-defined CRC models
   """
   @spec list() :: [{atom, String.t}]
   def list() do
-    @model_list
+    :crc_nif.crc_list()
+    |> Map.to_list()
+    |> Enum.map(fn {model, map} -> {model, Map.get(map, model)} end)
   end
 
   @doc """
@@ -40,7 +41,7 @@ defmodule CRC do
   """
   @spec list(binary) :: [{atom, String.t}]
   def list(filter) do
-    @model_list
+    list()
     |> Enum.filter(&(list_filter(&1, filter)))
   end
 
