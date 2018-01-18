@@ -30,7 +30,36 @@ iex> CRC.crc(:crc_16_xmodem, <<1,2,3,4,5,4,3,2,1>>)
 31763
 ```
 
-You can also create model's at runtime and re-use them. This can be done with a map:
+Or you can create a model at runtime, this can be done with a map:
+```elixir
+iex> model = CRC.crc(
+  %{
+    width: 16,
+    poly: 0x1021,
+    init: 0x00,
+    refin: false,
+    refout: false,
+    xorout: 0x00
+  }, 
+  <<1,2,3,4,5,4,3,2,1>>
+)
+31763
+```
+
+Or you can extend one of the pre-defined models:
+
+```elixir
+iex> model = CRC.crc(
+  %{
+    extend: :crc_16_xmodem,
+    init: 0x00,
+  }, 
+  <<1,2,3,4,5,4,3,2,1>>
+)
+31763
+```
+
+You can also create a resource for a model at runtime and re-use it:
 
 ```elixir
 iex> model = CRC.crc_init(
@@ -48,17 +77,16 @@ iex> CRC.crc(model, <<1,2,3,4,5,4,3,2,1>>)
 31763
 ```
 
-Or extend pre-defined models:
+Resources can also be used to do partial updates to a calculation, and then finalized later:
 
 ```elixir
-iex> model = CRC.crc_init(
-  %{
-    extend: :crc_16_xmodem,
-    init: 0x00,
-  }
-)
+iex> resource = CRC.crc_init(:crc_16_xmodem)
 #Reference<x.x.x.x>
-iex> CRC.crc(model, <<1,2,3,4,5,4,3,2,1>>)
+iex> resource2 = CRC.crc_update(resource, <<1, 2, 3, 4, 5>>)
+#Reference<y.y.y.y>
+iex> resource3 = CRC.crc_update(resource2, <<4, 3, 2, 1>>)
+#Reference<z.z.z.z>
+iex>CRC.crc_final(resource3)
 31763
 ```
 
