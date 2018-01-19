@@ -11,20 +11,74 @@ defmodule CRC do
   http://www.sunshine2k.de/coding/javascript/crc/crc_js.html
   """
 
+  @doc """
+  Calculated a CRC checksum for the `input` based on the crc `params` given.
+
+  `params` can be an atom for one of the compiled models. See `CRC.list/0` for a full list.
+  Or a Map with paramters to create a model at runtime. The map given should have all of the following keys:
+
+  `width` - (unsigned integer) representation for the width of the CRC in bits
+  `poly` - (unsigned integer) the polynomial used for the CRC calculation
+  `init` - (unsigned integer) The initial value used when starting the calculation
+  `refin` - (boolean) if the input value should be reflected. This is used for changing between endian's
+  `refout` - (boolean) if the outvalue should be reflected when calculation is completed
+  `xorout` - (unsigned integer) Final xor value used when completing the CRC calculation 
+  
+  Example:
+  ```
+  %{
+    width: 16,
+    poly: 0x1021,
+    init: 0x00,
+    refin: false,
+    refout: false,
+    xorout: 0x00
+  }
+  ```
+
+  You can also extend one of the compiled models at runtime by creating a map with `extend` key set to the model you wish to extend
+  and the keys you wish to override for that model.
+  For example to override the initial value for the `:crc_16_ccitt_false` model to `0x1D0F` you would pass the following Map as params:
+  `%{extend: :crc_16_ccitt_false, init: 0x1D0F}`
+
+  You can learn more about CRC calculation here:
+  http://www.sunshine2k.de/articles/coding/crc/understanding_crc.html
+  """
   @spec crc(:crc_algorithm.params(), iodata()) :: :crc_algorithm.value()
   defdelegate crc(params, input), to: :crc
 
+  @doc """
+  Initialize a resource to be used for doing CRC calculations. The returned
+  resource can be used with `crc/2` or `crc_update/2` to calcule CRC checksums.
+
+  Resource is created using the same `params` types that are used with `crc/2`.
+  - atom's for compiled models
+  - Map with model values
+  - Map to extend a compiled model.
+
+  If used with `crc/2` the returned resource can be re-used multiple times, but using a map or atom for a compiled model
+  will likely be slightly more performant.
+  
+  When using with `crc_update/2` a new resource will be returned with every call that should be used to continue the calculation.
+  """
   @spec crc_init(:crc_algorithm.params()) :: :crc_algorithm.resource()
   defdelegate crc_init(params), to: :crc
-
+  
+  @doc """
+  Begin or continue a multi-part CRC calculation. Takes a `resource` from result of `crc_init/1` or previous `crc_update/2`
+  call, and binary `input`, returns a new `resource` to be used to continue or finalize the CRC calculation. 
+  """
   @spec crc_update(:crc_algorithm.resource(), iodata()) :: :crc_algorithm.resource()
   defdelegate crc_update(resource, input), to: :crc
 
+  @doc """
+  Takes `resouce` from `crc_update/2` and finalizes the multi-part CRC calculation.
+  """
   @spec crc_final(:crc_algorithm.resource()) :: :crc_algorithm.value()
   defdelegate crc_final(resource), to: :crc
 
   @doc """
-  Returns a list of all the pre-defined CRC models
+  Returns a list of all the compiled CRC models
   """
   @spec list() :: [{atom, String.t}]
   def list() do
@@ -34,7 +88,7 @@ defmodule CRC do
   end
 
   @doc """
-  Returns a list of all pre-defined CRC Models that match the filter given.
+  Returns a list of all compiled CRC Models that match the filter given.
 
   Filter is compiled into a regular expression and matched against the model name
   and description.
@@ -52,98 +106,5 @@ defmodule CRC do
     Regex.match?(rfilter, atom_string) or Regex.match?(rfilter, model_name)
   end
 
-  @doc """
-  Calculates a 8-bit CRC with polynomial x^8+x^6+x^3+x^2+1, 0x14D.
-  Chosen based on Koopman, et al. (0xA6 in his notation = 0x14D >> 1):
-  http://www.ece.cmu.edu/~koopman/roses/dsn04/koopman04_crc_poly_embedded.pdf
-
-  seed defaults to 0xFF if one is not given
-  """
-  @spec crc_8(binary, number) :: number
-  defdelegate crc_8(input, seed \\ 0xFF), to: :crc
-
-  @doc """
-  Calculates a 16-bit ANSI CRC checksum for the provided binary
-  """
-  @spec crc_16(binary) :: number
-  def crc_16(input), do: :crc_fast.calc(:crc_16, input)
-
-  @doc """
-  Calculates a 16-bit CCITT CRC with the given seed,
-  seed defaults to 0xFFFF if one is not given.
-
-  This CCIT method uses a 0x1021 polynomial.
-  """
-  @spec ccitt_16(binary) :: number
-  def ccitt_16(input), do: :crc_fast.calc(:crc_16_ccitt_false, input)
-
-  @spec ccitt_16(binary, number) :: number
-  def ccitt_16(input, seed) do
-    extend_model_seed(:crc_16_ccitt_false, seed)
-    |> :crc_fast.calc(input)
-  end
-
-  @doc """
-  Calculates a 16-bit CCITT Kermit CRC
-
-  This CCIT method uses a 0x8408 polynomial.
-  """
-  @spec ccitt_16_kermit(binary) :: number
-  def ccitt_16_kermit(input), do: :crc_fast.calc(:crc_16_kermit, input)
-  @spec ccitt_16_kermit(binary, number) :: number
-  def ccitt_16_kermit(input, seed) do
-    extend_model_seed(:crc_16_kermit, seed)
-    |> :crc_fast.calc(input)
-  end
-
-  @doc """
-  Calculates a 16-bit CCITT XMODEM CRC
-
-  This CCIT method uses a 0x1021 polynomial.
-  """
-  @spec ccitt_16_xmodem(binary) :: number
-  def ccitt_16_xmodem(input), do: :crc_fast.calc(:xmodem, input)
-
-  @doc """
-  Calculates a 16-bit CCITT 0x1D0F CRC
-
-  This CCIT method uses a 0x1021 polynomial.
-  """
-  @spec ccitt_16_1D0F(binary) :: number
-  def ccitt_16_1D0F(input) do
-    extend_model_seed(:crc_16_ccitt_false, 0x1D0F)
-    |> :crc_fast.calc(input)
-  end
-
-  @doc """
-  Calculates a 16-bit modbus CRC
-  """
-  @spec crc_16_modbus(binary) :: number
-  def crc_16_modbus(input), do: :crc_fast.calc(:crc_16_modbus, input)
-
-  @doc """
-  Calculates a 16-bit Sick CRC
-  """
-  @spec crc_16_sick(binary) :: number
-  def crc_16_sick(input), do: :crc_fast.calc(:crc_16_sick, input)
-
-  @doc """
-  Calculates a 16-bit DNP CRC
-  """
-  @spec crc_16_dnp(binary) :: number
-  def crc_16_dnp(input), do: :crc_fast.calc(:crc_16_dnp, input)
-
-  @doc """
-  Calculates a 32-bit CRC
-  """
-  @spec crc_32(binary) :: number
-  def crc_32(input), do: :crc_fast.calc(:crc_32, input)
-
-  @doc """
-  Calculates an XOR checksum for the given binary
-  """
-  @spec checksum_xor(binary) :: number
-  defdelegate checksum_xor(input), to: :crc
-
-  defp extend_model_seed(model, seed), do: %{extend: model, init: seed}
+  use CRC.Legacy
 end
