@@ -40,65 +40,9 @@ defmodule CRCTest do
     end
   end
 
-  # TODO: remove the "new matches old" property tests once old implementations have been removed
-
   property "new CRC-8/KOOP matches old CRC-8/KOOP" do
     forall input in binary() do
       CRC.crc(:crc_8_koop, input) === CRC.crc_8(input, 0x00)
-    end
-  end
-
-  property "new CRC-16 matches old CRC-16" do
-    forall input in binary() do
-      CRC.crc(:crc_16, input) === CRC.crc_16(input)
-    end
-  end
-
-  property "new CRC-16/AUG-CCITT matches old CRC-16/AUG-CCITT" do
-    forall input in binary() do
-      CRC.crc(:crc_16_aug_ccitt, input) === CRC.ccitt_16_1D0F(input)
-    end
-  end
-
-  property "new CRC-16/CCITT-FALSE matches old CRC-16/CCITT-FALSE" do
-    forall input in binary() do
-      CRC.crc(:crc_16_ccitt_false, input) === CRC.ccitt_16(input)
-    end
-  end
-
-  property "new CRC-16/CCITT-FALSE matches old CRC-16/CCITT-FALSE for any init" do
-    forall {init, input} in {integer(0, 0xffff), binary()} do
-      CRC.crc(%{extend: :crc_16_ccitt_false, init: init}, input) === CRC.ccitt_16(input, init)
-    end
-  end
-
-  property "new KERMIT matches old KERMIT" do
-    forall input in binary() do
-      CRC.crc(:kermit, input) === CRC.ccitt_16_kermit(input)
-    end
-  end
-
-  property "new MODBUS matches old MODBUS" do
-    forall input in binary() do
-      CRC.crc(:modbus, input) === CRC.crc_16_modbus(input)
-    end
-  end
-
-  property "new SICK matches old SICK" do
-    forall input in binary() do
-      CRC.crc(:sick, input) === CRC.crc_16_sick(input)
-    end
-  end
-
-  property "new XMODEM matches old XMODEM" do
-    forall input in binary() do
-      CRC.crc(:xmodem, input) === CRC.ccitt_16_xmodem(input)
-    end
-  end
-
-  property "new CRC-32 matches old CRC-32" do
-    forall input in binary() do
-      CRC.crc(:crc_32, input) === CRC.crc_32(input)
     end
   end
 
