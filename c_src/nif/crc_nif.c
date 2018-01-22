@@ -6,8 +6,6 @@
 #include "crc_resource.h"
 #include "checksum_xor.h"
 #include "crc_8.h"
-#include "crc_16.h"
-#include "crc_32.h"
 #include "xnif_slice.h"
 
 static ERL_NIF_TERM ATOM_aliases;
@@ -333,35 +331,7 @@ static ErlNifFunc crc_nif_funcs[] = {{"debug_table", 1, crc_nif_debug_table_1},
                                      {"crc_8", 2, crc_nif_crc_8_2},
                                      {"crc_8_init", 1, crc_nif_crc_8_init_1},
                                      {"crc_8_update", 2, crc_nif_crc_8_update_2},
-                                     {"crc_8_final", 1, crc_nif_crc_8_final_1},
-                                     {"crc_16", 1, crc_nif_crc_16_1},
-                                     {"crc_16_init", 0, crc_nif_crc_16_init_0},
-                                     {"crc_16_update", 2, crc_nif_crc_16_update_2},
-                                     {"crc_16_final", 1, crc_nif_crc_16_final_1},
-                                     {"crc_16_ccitt", 2, crc_nif_crc_16_ccitt_2},
-                                     {"crc_16_ccitt_init", 1, crc_nif_crc_16_ccitt_init_1},
-                                     {"crc_16_ccitt_update", 2, crc_nif_crc_16_ccitt_update_2},
-                                     {"crc_16_ccitt_final", 1, crc_nif_crc_16_ccitt_final_1},
-                                     {"crc_16_dnp", 1, crc_nif_crc_16_dnp_1},
-                                     {"crc_16_dnp_init", 0, crc_nif_crc_16_dnp_init_0},
-                                     {"crc_16_dnp_update", 2, crc_nif_crc_16_dnp_update_2},
-                                     {"crc_16_dnp_final", 1, crc_nif_crc_16_dnp_final_1},
-                                     {"crc_16_kermit", 2, crc_nif_crc_16_kermit_2},
-                                     {"crc_16_kermit_init", 1, crc_nif_crc_16_kermit_init_1},
-                                     {"crc_16_kermit_update", 2, crc_nif_crc_16_kermit_update_2},
-                                     {"crc_16_kermit_final", 1, crc_nif_crc_16_kermit_final_1},
-                                     {"crc_16_modbus", 1, crc_nif_crc_16_modbus_1},
-                                     {"crc_16_modbus_init", 0, crc_nif_crc_16_modbus_init_0},
-                                     {"crc_16_modbus_update", 2, crc_nif_crc_16_modbus_update_2},
-                                     {"crc_16_modbus_final", 1, crc_nif_crc_16_modbus_final_1},
-                                     {"crc_16_sick", 1, crc_nif_crc_16_sick_1},
-                                     {"crc_16_sick_init", 0, crc_nif_crc_16_sick_init_0},
-                                     {"crc_16_sick_update", 2, crc_nif_crc_16_sick_update_2},
-                                     {"crc_16_sick_final", 1, crc_nif_crc_16_sick_final_1},
-                                     {"crc_32", 1, crc_nif_crc_32_1},
-                                     {"crc_32_init", 0, crc_nif_crc_32_init_0},
-                                     {"crc_32_update", 2, crc_nif_crc_32_update_2},
-                                     {"crc_32_final", 1, crc_nif_crc_32_final_1}};
+                                     {"crc_8_final", 1, crc_nif_crc_8_final_1}};
 
 static void crc_nif_make_atoms(ErlNifEnv *env);
 static int crc_nif_load(ErlNifEnv *env, void **priv_data, ERL_NIF_TERM load_info);
