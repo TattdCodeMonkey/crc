@@ -1,7 +1,7 @@
 defmodule CRC.Legacy do
     # Legacy CRC functions, these may be depraced in a future release and removed in v1.0 - RN
-    defmacro __using__(opts) do
-        quote location: :keep, bind_quoted: [opts: opts] do
+    defmacro __using__(_) do
+        quote do
             @doc """
             Calculates a 8-bit CRC with polynomial x^8+x^6+x^3+x^2+1, 0x14D.
             Chosen based on Koopman, et al. (0xA6 in his notation = 0x14D >> 1):
