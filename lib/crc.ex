@@ -72,7 +72,7 @@ defmodule CRC do
   defdelegate crc_update(resource, input), to: :crc
 
   @doc """
-  Takes `resouce` from `crc_update/2` and finalizes the multi-part CRC calculation.
+  Takes a `resource` result from `crc_update/2` and finalizes the multi-part CRC calculation.
   """
   @spec crc_final(:crc_algorithm.resource()) :: :crc_algorithm.value()
   defdelegate crc_final(resource), to: :crc
