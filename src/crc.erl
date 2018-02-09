@@ -59,47 +59,47 @@ crc_8(Input, Seed) ->
 
 -spec crc_16(binary()) -> uint16_t().
 crc_16(Input) ->
-	crc_nif:crc_16(Input).
+	crc_fast:calc(crc_16, Input).
 
 -spec ccitt_16(binary()) -> uint16_t().
 ccitt_16(Input) ->
-	ccitt_16(Input, 16#FFFF).
+	crc_fast:calc(crc_16_ccitt_false, Input).
 
 -spec ccitt_16(binary(), uint16_t()) -> uint16_t().
 ccitt_16(Input, Seed) ->
-	crc_nif:crc_16_ccitt(Seed, Input).
+	crc_fast:calc(#{extend => crc_16_ccitt_false, init => Seed}, Input).
 
 -spec ccitt_16_kermit(binary()) -> uint16_t().
 ccitt_16_kermit(Input) ->
-	ccitt_16_kermit(Input, 16#FFFF).
+	crc_fast:calc(crc_16_kermit, Input).
 
 -spec ccitt_16_kermit(binary(), uint16_t()) -> uint16_t().
 ccitt_16_kermit(Input, Seed) ->
-	crc_nif:crc_16_kermit(Seed, Input).
+	crc_fast:calc(#{extend => crc_16_kermit, init => Seed}, Input).
 
 -spec ccitt_16_xmodem(binary()) -> uint16_t().
 ccitt_16_xmodem(Input) ->
-	crc_nif:crc_16_ccitt(16#0000, Input).
+	crc_fast:calc(xmodem, Input).
 
 -spec ccitt_16_1D0F(binary()) -> uint16_t().
 ccitt_16_1D0F(Input) ->
-	crc_nif:crc_16_ccitt(16#1D0F, Input).
+	crc_fast:calc(#{extend => crc_16_ccitt_false, init => 16#1D0F}, Input).
 
 -spec crc_16_dnp(binary()) -> uint16_t().
 crc_16_dnp(Input) ->
-	crc_nif:crc_16_dnp(Input).
+	crc_fast:calc(crc_16_dnp, Input).
 
 -spec crc_16_modbus(binary()) -> uint16_t().
 crc_16_modbus(Input) ->
-	crc_nif:crc_16_modbus(Input).
+	crc_fast:calc(crc_16_modbus, Input).
 
 -spec crc_16_sick(binary()) -> uint16_t().
 crc_16_sick(Input) ->
-	crc_nif:crc_16_sick(Input).
+	crc_fast:calc(crc_16_sick, Input).
 
 -spec crc_32(binary()) -> uint32_t().
 crc_32(Input) ->
-	crc_nif:crc_32(Input).
+	crc_fast:calc(crc_32, Input).
 
 -spec checksum_xor(binary()) -> uint8_t().
 checksum_xor(Input) ->

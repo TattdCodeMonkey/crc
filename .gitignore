@@ -22,7 +22,6 @@ erl_crash.dump
 # Build artifacts.
 *.o
 /.erlang.mk
-/.idea
 /c_src/env.mk
 /c_src/Makefile.auto.win
 /c_src/*.obj
@@ -34,3 +33,7 @@ erl_crash.dump
 /priv/*.dylib
 /priv/*.so
 /crc.d
+
+# Editor folders
+/.idea
+/.vscode
