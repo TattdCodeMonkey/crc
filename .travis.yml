@@ -10,6 +10,3 @@ before_install:
   - export PYCRC_BIN=./pycrc-0.9.1/pycrc.py
 script:
   - mix test
-after_script:
-  - mix deps.get --only docs
-  - MIX_ENV=docs mix inch.report
