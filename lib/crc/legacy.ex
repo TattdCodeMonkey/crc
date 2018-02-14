@@ -1,4 +1,6 @@
 defmodule CRC.Legacy do
+    @moduledoc false
+
     # Legacy CRC functions, these may be depraced in a future release and removed in v1.0 - RN
     defmacro __using__(_) do
         quote do

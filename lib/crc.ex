@@ -12,7 +12,7 @@ defmodule CRC do
   """
 
   @doc """
-  Calculated a CRC checksum for the `input` based on the crc `params` given.
+  Calculate a CRC checksum for the `input` based on the crc `params` given.
 
   `params` can be an atom for one of the compiled models. See `CRC.list/0` for a full list.
   Or a Map with paramters to create a model at runtime. The map given should have all of the following keys:
@@ -76,6 +76,23 @@ defmodule CRC do
   """
   @spec crc_final(:crc_algorithm.resource()) :: :crc_algorithm.value()
   defdelegate crc_final(resource), to: :crc
+
+  @doc """
+  Calculate a CRC checksum for the `input` based on the crc `params` given.
+
+  See `CRC.crc/2` for details on valid `params`.
+
+  This function has the parameter order reversed to allow easier use with pipelines.
+  allowing code to be written like:
+  
+  ```elixir
+  read_data() |> CRC.calculate(:crc_16) |> do_something()
+  ```
+  """
+  @spec calculate(iodata(), :crc_algorithm.params()) :: :crc_algorithm.value()
+  def calculate(input, params) do
+    :crc.crc(params, input)
+  end
 
   @doc """
   Returns a list of all the compiled CRC models

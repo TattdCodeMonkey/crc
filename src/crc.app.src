@@ -2,7 +2,7 @@
 %% vim: ts=4 sw=4 ft=erlang noet
 {application, crc, [
   {description, "A library used to calculate CRC checksums for binary data"},
-  {vsn, "0.8.3"},
+  {vsn, "0.9.0"},
   {id, "git"},
   {registered, []},
   {applications, [
