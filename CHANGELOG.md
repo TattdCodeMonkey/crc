@@ -1,4 +1,10 @@
 # Changelog
+## v0.9.0
+### Added
+- `CRC.calculate/2` generic calculate function that takes the input as first
+  parameter. This is a copy of `CRC.crc/2` but should allow easier transition
+  from the legacy model functions ie `CRC.crc_16` etc.
+- Many README and Documentation tweaks / improvements.
 
 ## v0.8.3
 ### Added
@@ -7,7 +13,7 @@
 ### Changes
 - Migrated erlang model specific functions to use `crc_fast` instead of model specific NIFs
 - Removed model specific NIFs
-- Moved model specific funcitons from `CRC` to `CRC.Legacy`
+- Moved model specific functions from `CRC` to `CRC.Legacy`
 - Removed redundant tests
 
 ## v0.8.2
