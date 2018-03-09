@@ -9,12 +9,27 @@ This module is used to calculate CRC (Cyclic Redundancy Check) values for binary
 
 ## Installation
 
+### Elixir
   1. Add crc to your list of dependencies in `mix.exs`:
 
 ```elixir
   def deps do
-    [{:crc, "~> 0.8"}]
+    [{:crc, "~> 0.9.0"}]
   end
+```
+
+### Erlang
+  1. add crc to your `rebar.config`
+```erlang
+{deps, [
+  {crc, "0.9.0"}
+]}.
+```
+  
+  or `erlang.mk`
+
+```
+dep_crc = hex 0.9.0
 ```
 
 ## Supported algorithms (models)
@@ -28,11 +43,13 @@ To calculate a CRC-16 X-Modem checksum for the binary `<<1,2,3,4,5,4,3,2,1>>` us
 ```elixir
 iex> CRC.crc(:crc_16_xmodem, <<1,2,3,4,5,4,3,2,1>>)
 31763
+iex> CRC.calculate(<<1,2,3,4,5,4,3,2,1>>, :crc_16_xmodem)
+31763
 ```
 
 Or you can create a model at runtime, this can be done with a map:
 ```elixir
-iex> model = CRC.crc(
+iex> CRC.crc(
   %{
     width: 16,
     poly: 0x1021,
@@ -44,25 +61,8 @@ iex> model = CRC.crc(
   <<1,2,3,4,5,4,3,2,1>>
 )
 31763
-```
-
-Or you can extend one of the pre-defined models:
-
-```elixir
-iex> model = CRC.crc(
-  %{
-    extend: :crc_16_xmodem,
-    init: 0x00,
-  }, 
-  <<1,2,3,4,5,4,3,2,1>>
-)
-31763
-```
-
-You can also create a resource for a model at runtime and re-use it:
-
-```elixir
-iex> model = CRC.crc_init(
+iex> CRC.calculate(   
+  <<1,2,3,4,5,4,3,2,1>>,
   %{
     width: 16,
     poly: 0x1021,
@@ -72,12 +72,23 @@ iex> model = CRC.crc_init(
     xorout: 0x00
   }
 )
-#Reference<x.x.x.x>
-iex> CRC.crc(model, <<1,2,3,4,5,4,3,2,1>>)
 31763
 ```
 
-Resources can also be used to do partial updates to a calculation, and then finalized later:
+Or you can extend one of the pre-defined models:
+
+```elixir
+iex> CRC.crc(
+  %{
+    extend: :crc_16_xmodem,
+    init: 0x00,
+  }, 
+  <<1,2,3,4,5,4,3,2,1>>
+)
+31763
+```
+
+`CRC.crc_init/1` is used to create a resource and be used to do partial updates to a calculation that is then finalized later:
 
 ```elixir
 iex> resource = CRC.crc_init(:crc_16_xmodem)
@@ -89,6 +100,8 @@ iex> resource3 = CRC.crc_update(resource2, <<4, 3, 2, 1>>)
 iex>CRC.crc_final(resource3)
 31763
 ```
+
+This could be usefule to calculate a CRC for a larger binary that you are receiving asyncronously. 
 
 ## Tests
 

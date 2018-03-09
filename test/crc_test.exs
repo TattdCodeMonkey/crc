@@ -28,6 +28,12 @@ defmodule CRCTest do
     assert CRC.checksum_xor(large_input) == ChecksumXOR.calc(large_input)
   end
 
+  test "calculate" do
+    assert CRC.calculate(@test_data_01, :crc_16) == 0xBB3D
+    large_input = :binary.copy(@test_data_01, 1024 * 40 + 1)
+    assert CRC.calculate(large_input, :crc_16) == 0xF8F6
+  end
+
   property "CRC-8/KOOP" do
     forall input in binary() do
       CRC.crc_8(input) == CRC8KOOP.calc(input)
