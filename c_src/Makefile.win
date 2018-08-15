@@ -11,13 +11,6 @@ NIF_SRC=\
   nif\xnif_slice.c\
   nif\checksum_xor.c\
   nif\crc_8.c\
-  nif\crc_16.c\
-  nif\crc_16_ccitt.c\
-  nif\crc_16_dnp.c\
-  nif\crc_16_kermit.c\
-  nif\crc_16_modbus.c\
-  nif\crc_16_sick.c\
-  nif\crc_32.c\
   nif\crc_nif.c\
   nif\crc_algorithm.c\
   nif\crc_model.c\
