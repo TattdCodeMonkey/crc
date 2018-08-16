@@ -14,7 +14,7 @@ This module is used to calculate CRC (Cyclic Redundancy Check) values for binary
 
 ```elixir
   def deps do
-    [{:crc, "~> 0.9.0"}]
+    [{:crc, "~> 0.9.1"}]
   end
 ```
 
@@ -22,14 +22,14 @@ This module is used to calculate CRC (Cyclic Redundancy Check) values for binary
   1. add crc to your `rebar.config`
 ```erlang
 {deps, [
-  {crc, "0.9.0"}
+  {crc, "0.9.1"}
 ]}.
 ```
   
   or `erlang.mk`
 
 ```
-dep_crc = hex 0.9.0
+dep_crc = hex 0.9.1
 ```
 
 ## Supported algorithms (models)

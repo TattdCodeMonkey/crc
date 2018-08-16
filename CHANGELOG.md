@@ -1,4 +1,8 @@
 # Changelog
+## v0.9.1
+### Fixes
+- Removed files from Windows makefile to fix compiling on Windows.
+
 ## v0.9.0
 ### Added
 - `CRC.calculate/2` generic calculate function that takes the input as first
