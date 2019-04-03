@@ -74,7 +74,7 @@ else ifeq ($(PLATFORM),freebsd)
 	CXXFLAGS ?= -O3 -std=c++11 -finline-functions -fstack-protector -Wall
 else ifeq ($(PLATFORM),linux)
 	CC ?= gcc
-	CFLAGS ?= -O3 -std=c11 -finline-functions -fstack-protector -Wall -Wmissing-prototypes
+	CFLAGS ?= -O3 -std=c11 -finline-functions -fstack-protector -Wall -Wmissing-prototypes -D_POSIX_C_SOURCE=200809L
 	CXXFLAGS ?= -O3 -std=c++11 -finline-functions -fstack-protector -Wall
 else ifeq ($(PLATFORM),solaris)
 	CC ?= cc
