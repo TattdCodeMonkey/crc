@@ -1,4 +1,8 @@
 # Changelog
+## v0.9.2
+### Fixes
+- Fixed gcc warning implicit declaration of strnlen on linux 
+
 ## v0.9.1
 ### Fixes
 - Removed files from Windows makefile to fix compiling on Windows.
