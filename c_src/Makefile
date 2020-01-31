@@ -3,13 +3,21 @@
 CURDIR := $(shell pwd)
 BASEDIR := $(abspath $(CURDIR)/..)
 
+ifneq ($(MIX_APP_PATH),)
+PREFIX = $(MIX_APP_PATH)/priv
+BUILD  = $(MIX_APP_PATH)/obj
+else
+PREFIX = $(BASEDIR)/priv
+BUILD  = $(CURDIR)/obj
+endif
+
 PROJECT = crc
 
 # Configuration.
 
 C_SRC_DIR ?= $(CURDIR)
 C_SRC_ENV ?= $(C_SRC_DIR)/env.mk
-C_SRC_NIF ?= $(BASEDIR)/priv/$(PROJECT)_nif
+C_SRC_NIF ?= $(PREFIX)/$(PROJECT)_nif
 
 # "erl" command.
 
@@ -135,7 +143,8 @@ endif
 ifeq ($(NIF_SOURCES),)
 NIF_SOURCES := $(sort $(foreach pat,*.c *.C *.cc *.cpp,$(call core_find,$(C_SRC_DIR)/nif/,$(pat))))
 endif
-NIF_OBJECTS = $(addsuffix .o, $(basename $(NIF_SOURCES)))
+NIF_OBJECTS_BASE = $(addsuffix .o, $(basename $(NIF_SOURCES)))
+NIF_OBJECTS = $(NIF_OBJECTS_BASE:$(C_SRC_DIR)/nif/%=$(BUILD)/%)
 
 COMPILE_C = $(c_verbose) $(CC) $(CFLAGS) $(CPPFLAGS) -c
 COMPILE_CPP = $(cpp_verbose) $(CXX) $(CXXFLAGS) $(CPPFLAGS) -c
@@ -146,23 +155,25 @@ app:: $(C_SRC_ENV) $(C_SRC_NIF_FILE)
 
 test-build:: $(C_SRC_ENV) $(C_SRC_NIF_FILE)
 
-$(C_SRC_NIF_FILE): $(NIF_OBJECTS)
-	$(verbose) mkdir -p $(BASEDIR)/priv
+$(C_SRC_NIF_FILE): $(PREFIX) $(BUILD) $(NIF_OBJECTS)
 	$(link_verbose) $(CC) $(NIF_OBJECTS) \
 		$(LDFLAGS) -shared $(LDLIBS) \
 		-o $(C_SRC_NIF_FILE)
 
-%.o: %.c
+$(BUILD)/%.o: $(C_SRC_DIR)/nif/%.c
 	$(COMPILE_C) $(OUTPUT_OPTION) $<
 
-%.o: %.cc
+$(BUILD)/%.o: $(C_SRC_DIR)/nif/%.cc
 	$(COMPILE_CPP) $(OUTPUT_OPTION) $<
 
-%.o: %.C
+$(BUILD)/%.o: $(C_SRC_DIR)/nif/%.C
 	$(COMPILE_CPP) $(OUTPUT_OPTION) $<
 
-%.o: %.cpp
+$(BUILD)/%.o: $(C_SRC_DIR)/nif/%.cpp
 	$(COMPILE_CPP) $(OUTPUT_OPTION) $<
+
+$(PREFIX) $(BUILD):
+	$(verbose) mkdir -p $@
 
 clean:: clean-c_src
 
