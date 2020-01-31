@@ -1,4 +1,8 @@
 # Changelog
+## v0.10.0
+### Added
+- Change build path to use `MIX_APP_PATH` if available. This should improve compilation for multiple nerves targets.
+
 ## v0.9.2
 ### Fixes
 - Fixed gcc warning implicit declaration of strnlen on linux 
