@@ -1,4 +1,7 @@
 # Changelog
+## v0.10.1
+- Removed usage of `ERL_INTERFACE_INCLUDE_DIR`, it was removed in OTP 23
+
 ## v0.10.0
 ### Added
 - Change build path to use `MIX_APP_PATH` if available. This should improve compilation for multiple nerves targets.
