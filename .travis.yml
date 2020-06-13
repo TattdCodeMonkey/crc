@@ -1,8 +1,10 @@
 language: elixir
-elixir:
-  - 1.4.5
-otp_release:
-  - 20.0
+jobs:
+  include:
+    - elixir: '1.4'
+      otp_release: '20.0'
+    - elxir: '1.10'
+      otp_release: '23.0'
 sudo: false
 before_install:
   - wget https://github.com/tpircher/pycrc/archive/v0.9.1.zip
