@@ -1,34 +1,41 @@
 # CRC
 
-[![Build
-Status](https://travis-ci.org/TattdCodeMonkey/crc.png?branch=master)](https://travis-ci.org/TattdCodeMonkey/crc)
-[![Hex version](https://img.shields.io/hexpm/v/crc.svg "Hex
-version")](https://hex.pm/packages/crc)
+[![Build Status](https://travis-ci.org/TattdCodeMonkey/crc.png?branch=master)](https://travis-ci.org/TattdCodeMonkey/crc)
+[![Module Version](https://img.shields.io/hexpm/v/crc.svg)](https://hex.pm/packages/crc)
+[![Hex Docs](https://img.shields.io/badge/hex-docs-lightgreen.svg)](https://hexdocs.pm/crc/)
+[![Total Download](https://img.shields.io/hexpm/dt/crc.svg)](https://hex.pm/packages/crc)
+[![License](https://img.shields.io/hexpm/l/crc.svg)](https://github.com/TattdCodeMonkey/crc/blob/master/LICENSE)
+[![Last Updated](https://img.shields.io/github/last-commit/TattdCodeMonkey/crc.svg)](https://github.com/TattdCodeMonkey/crc/commits/master)
 
 This module is used to calculate CRC (Cyclic Redundancy Check) values for binary data. It uses NIF functions written in C to iterate over the given binary calculating the CRC checksum value. The NIFs are written to report their time slice usage and will not interfere with the schedulers.
 
 ## Installation
 
 ### Elixir
-  1. Add crc to your list of dependencies in `mix.exs`:
+
+Add `:crc` to your list of dependencies in `mix.exs`:
 
 ```elixir
-  def deps do
-    [{:crc, "~> 0.10"}]
-  end
+def deps do
+  [
+    {:crc, "~> 0.10"}
+  ]
+end
 ```
 
 ### Erlang
-  1. add crc to your `rebar.config`
+
+Add `crc` to your `rebar.config`:
+
 ```erlang
 {deps, [
   {crc, "0.10.0"}
 ]}.
 ```
-  
-  or `erlang.mk`
 
-```
+Or `erlang.mk`:
+
+```erlang
 dep_crc = hex 0.10.0
 ```
 
@@ -43,11 +50,13 @@ To calculate a CRC-16 X-Modem checksum for the binary `<<1,2,3,4,5,4,3,2,1>>` us
 ```elixir
 iex> CRC.crc(:crc_16_xmodem, <<1,2,3,4,5,4,3,2,1>>)
 31763
+
 iex> CRC.calculate(<<1,2,3,4,5,4,3,2,1>>, :crc_16_xmodem)
 31763
 ```
 
 Or you can create a model at runtime, this can be done with a map:
+
 ```elixir
 iex> CRC.crc(
   %{
@@ -57,11 +66,11 @@ iex> CRC.crc(
     refin: false,
     refout: false,
     xorout: 0x00
-  }, 
+  },
   <<1,2,3,4,5,4,3,2,1>>
 )
 31763
-iex> CRC.calculate(   
+iex> CRC.calculate(
   <<1,2,3,4,5,4,3,2,1>>,
   %{
     width: 16,
@@ -82,7 +91,7 @@ iex> CRC.crc(
   %{
     extend: :crc_16_xmodem,
     init: 0x00,
-  }, 
+  },
   <<1,2,3,4,5,4,3,2,1>>
 )
 31763
@@ -93,15 +102,18 @@ iex> CRC.crc(
 ```elixir
 iex> resource = CRC.crc_init(:crc_16_xmodem)
 #Reference<x.x.x.x>
+
 iex> resource2 = CRC.crc_update(resource, <<1, 2, 3, 4, 5>>)
 #Reference<y.y.y.y>
+
 iex> resource3 = CRC.crc_update(resource2, <<4, 3, 2, 1>>)
 #Reference<z.z.z.z>
-iex>CRC.crc_final(resource3)
+
+iex> CRC.crc_final(resource3)
 31763
 ```
 
-This could be usefule to calculate a CRC for a larger binary that you are receiving asyncronously. 
+This could be useful to calculate a CRC for a larger binary that you are receiving asynchronously.
 
 ## Tests
 
@@ -111,6 +123,7 @@ CRC implementations have been tested against these online calculators to validat
 -  http://www.sunshine2k.de/coding/javascript/crc/crc_js.html
 
 There are also two property tests that can use [PyCRC](https://github.com/tpircher/pycrc) or [CRC RevEng](https://sourceforge.net/projects/reveng/) if installed and configured locally.
+
 ```bash
 $ export PYCRC_BIN=~/pycrc-0.9.1/pycrc.py
 $ export REVENG_BIN=~/reveng-1.5.2/reveng
@@ -118,3 +131,10 @@ $ mix test
 ```
 
 PyCRC is used as a part of the TravisCI test suite.
+
+## Copyright and License
+
+Copyright (c) 2015 Rodney Norris
+
+CRC is released under the MIT License. See the [LICENSE.md](./LICENSE.md) file
+for further details.

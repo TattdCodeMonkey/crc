@@ -1,21 +1,25 @@
-defmodule CRC.Mixfile do use Mix.Project 
+defmodule CRC.Mixfile do
+  use Mix.Project
+
+  @source_url "https://github.com/TattdCodeMonkey/crc"
+  @version "0.10.1"
+
   def project() do
     [
       app: :crc,
-      version: "0.10.1",
+      version: @version,
       elixir: ">= 1.4.2 and < 2.0.0",
       elixirc_paths: elixirc_paths(Mix.env()),
       build_embedded: Mix.env() == :prod,
       start_permanent: Mix.env() == :prod,
-      deps: deps(),
       compilers: [:elixir_make] ++ Mix.compilers(),
       make_env: %{"MIX_ENV" => to_string(Mix.env())},
       make_clean: ["clean"],
       make_cwd: "c_src",
-      description: description(),
       name: "crc",
       package: package(),
-      source_url: "https://github.com/TattdCodeMonkey/crc"
+      deps: deps(),
+      docs: docs()
     ]
   end
 
@@ -28,24 +32,19 @@ defmodule CRC.Mixfile do use Mix.Project
   defp deps() do
     [
       {:elixir_make, "~> 0.6", runtime: false},
-      {:ex_doc, "~> 0.19", only: :dev},
+      {:ex_doc, ">= 0.0.0", only: :dev, runtime: false},
       {:propcheck, "~> 1.0", only: :test}
     ]
   end
 
-  defp description() do
-    """
-    A library used to calculate CRC checksums for binary data
-    """
-  end
-
   # Specifies which paths to compile per environment
   defp elixirc_paths(:test), do: ["lib", "test/support"]
-  defp elixirc_paths(_),     do: ["lib"]
+  defp elixirc_paths(_), do: ["lib"]
 
   defp package() do
     [
       name: :crc,
+      description: "A library used to calculate CRC checksums for binary data.",
       files: [
         "c_src/nif/*.c",
         "c_src/nif/*.h",
@@ -58,11 +57,27 @@ defmodule CRC.Mixfile do use Mix.Project
         "rebar.config",
         "src"
       ],
+      maintainers: ["Rodney Norris"],
       licenses: ["MIT"],
       links: %{
-        "GitHub" => "https://github.com/TattdCodeMonkey/crc"
-      },
-      maintainers: ["Rodney Norris"]
+        "Changelog" => "https://hexdocs.pm/crc/changelog.html",
+        "GitHub" => @source_url
+      }
+    ]
+  end
+
+  defp docs do
+    [
+      extras: [
+        "CHANGELOG.md",
+        "LICENSE.md": [title: "License"],
+        "README.md": [title: "Overview"]
+      ],
+      main: "readme",
+      source_url: @source_url,
+      source_ref: "v#{@version}",
+      api_reference: false,
+      formatters: ["html"]
     ]
   end
 end
