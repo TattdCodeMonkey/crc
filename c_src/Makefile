@@ -27,6 +27,7 @@ ERL = erl +A0 -noinput -boot start_clean
 
 ifeq ($(PLATFORM),)
 UNAME_S := $(shell uname -s)
+ARCH := $(shell uname -m)
 
 ifeq ($(UNAME_S),Linux)
 PLATFORM = linux
@@ -73,9 +74,9 @@ ifeq ($(PLATFORM),msys2)
 	CXXFLAGS ?= -O3 -std=c++11 -finline-functions -fstack-protector -Wall
 else ifeq ($(PLATFORM),darwin)
 	CC ?= cc
-	CFLAGS ?= -O3 -std=c11 -arch x86_64 -fstack-protector -Wall -Wmissing-prototypes
-	CXXFLAGS ?= -O3 -std=c++11 -arch x86_64 -fstack-protector -Wall
-	LDFLAGS ?= -arch x86_64 -flat_namespace -undefined suppress
+	CFLAGS ?= -O3 -std=c11 -arch $(ARCH) -fstack-protector -Wall -Wmissing-prototypes
+	CXXFLAGS ?= -O3 -std=c++11 -arch $(ARCH) -fstack-protector -Wall
+	LDFLAGS ?= -arch $(ARCH) -flat_namespace -undefined suppress
 else ifeq ($(PLATFORM),freebsd)
 	CC ?= cc
 	CFLAGS ?= -O3 -std=c11 -finline-functions -fstack-protector -Wall -Wmissing-prototypes
