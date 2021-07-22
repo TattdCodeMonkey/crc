@@ -5,6 +5,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v0.10.2 - 2021-07-21
+- fix compiling on non x86_64 architecture (M1 mac)
+
 ## v0.10.1 - 2020-06-12
 - Removed usage of `ERL_INTERFACE_INCLUDE_DIR`, it was removed in OTP 23
 
