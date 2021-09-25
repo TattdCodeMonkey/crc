@@ -1,6 +1,5 @@
 # CRC
 
-[![Build Status](https://travis-ci.org/TattdCodeMonkey/crc.png?branch=master)](https://travis-ci.org/TattdCodeMonkey/crc)
 [![Module Version](https://img.shields.io/hexpm/v/crc.svg)](https://hex.pm/packages/crc)
 [![Hex Docs](https://img.shields.io/badge/hex-docs-lightgreen.svg)](https://hexdocs.pm/crc/)
 [![Total Download](https://img.shields.io/hexpm/dt/crc.svg)](https://hex.pm/packages/crc)
