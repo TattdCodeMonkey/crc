@@ -74,22 +74,22 @@ ifeq ($(PLATFORM),msys2)
 	CXXFLAGS ?= -O3 -std=c++11 -finline-functions -fstack-protector -Wall
 else ifeq ($(PLATFORM),darwin)
 	CC ?= cc
-	CFLAGS ?= -O3 -std=c11 -arch $(ARCH) -fstack-protector -Wall -Wmissing-prototypes
-	CXXFLAGS ?= -O3 -std=c++11 -arch $(ARCH) -fstack-protector -Wall
-	LDFLAGS ?= -arch $(ARCH) -flat_namespace -undefined suppress
+	CFLAGS += -O3 -std=c11 -arch $(ARCH) -fstack-protector -Wall -Wmissing-prototypes
+	CXXFLAGS += -O3 -std=c++11 -arch $(ARCH) -fstack-protector -Wall
+	LDFLAGS += -arch $(ARCH) -flat_namespace -undefined suppress
 else ifeq ($(PLATFORM),freebsd)
 	CC ?= cc
-	CFLAGS ?= -O3 -std=c11 -finline-functions -fstack-protector -Wall -Wmissing-prototypes
-	CXXFLAGS ?= -O3 -std=c++11 -finline-functions -fstack-protector -Wall
+	CFLAGS += -O3 -std=c11 -finline-functions -fstack-protector -Wall -Wmissing-prototypes
+	CXXFLAGS += -O3 -std=c++11 -finline-functions -fstack-protector -Wall
 else ifeq ($(PLATFORM),linux)
 	CC ?= gcc
-	CFLAGS ?= -O3 -std=c11 -finline-functions -fstack-protector -Wall -Wmissing-prototypes -D_POSIX_C_SOURCE=200809L
-	CXXFLAGS ?= -O3 -std=c++11 -finline-functions -fstack-protector -Wall
+	CFLAGS += -O3 -std=c11 -finline-functions -fstack-protector -Wall -Wmissing-prototypes -D_POSIX_C_SOURCE=200809L
+	CXXFLAGS += -O3 -std=c++11 -finline-functions -fstack-protector -Wall
 else ifeq ($(PLATFORM),solaris)
 	CC ?= cc
-	CFLAGS ?= -O3 -std=c11 -finline-functions -fstack-protector -Wall -Wmissing-prototypes -fPIC
-	CXXFLAGS ?= -O3 -std=c++11 -finline-functions -fstack-protector -Wall -fPIC
-	LDLIBS ?= -latomic
+	CFLAGS += -O3 -std=c11 -finline-functions -fstack-protector -Wall -Wmissing-prototypes -fPIC
+	CXXFLAGS += -O3 -std=c++11 -finline-functions -fstack-protector -Wall -fPIC
+	LDLIBS += -latomic
 endif
 
 ifneq ($(PLATFORM),msys2)
