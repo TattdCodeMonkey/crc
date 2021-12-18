@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v0.10.3 - 2021-12-17
+- Updated Makefile to append (+=) to environment variables instead of
+  conditionally setting them  with ?= to fix an issue where LDFLAGS was not set
+  correctly. See [#42](https://github.com/TattdCodeMonkey/crc/issues/42)  
+
 ## v0.10.2 - 2021-07-21
 - fix compiling on non x86_64 architecture (M1 mac)
 
