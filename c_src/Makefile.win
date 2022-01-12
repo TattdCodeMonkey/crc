@@ -24,6 +24,7 @@ Makefile.auto.win:
 
 !IFDEF ERTS_INCLUDE_PATH
 app:
+  if NOT EXIST "../priv" mkdir "../priv"
   $(CC) $(CFLAGS) /I"$(ERTS_INCLUDE_PATH)" /LD /MD /Fe"..\priv\crc_nif.dll" $(NIF_SRC)
 !ELSE
 app: Makefile.auto.win
