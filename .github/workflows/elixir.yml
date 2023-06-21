@@ -12,13 +12,20 @@ jobs:
     name: Build and test
     runs-on: ubuntu-latest
 
+    strategy:
+      # Specify the OTP and Elixir versions to use when building
+      # and running the workflow steps.
+      matrix:
+        otp: ['25.0.4', '26.0.1']       # Define the OTP version [required]
+        elixir: ['1.14.5', '1.15.0']    # Define the elixir version [required]
+
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Set up Elixir
-      uses: erlef/setup-beam@988e02bfe678367a02564f65ca2e37726dc0268f
+      uses: erlef/setup-beam@v1
       with:
-        elixir-version: '1.12.3' # Define the elixir version [required]
-        otp-version: '24.1' # Define the OTP version [required]
+        otp-version: ${{matrix.otp}}
+        elixir-version: ${{matrix.elixir}}
     - name: Restore dependencies cache
       uses: actions/cache@v2
       with:
