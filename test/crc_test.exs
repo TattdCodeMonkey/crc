@@ -190,7 +190,7 @@ defmodule CRCTest do
           |> String.trim()
         results =
           case results do
-            << "0x", rest :: binary() >> -> rest
+            << "0x", rest :: binary >> -> rest
             _ -> results
           end
         crc_le = :erlang.binary_to_integer(results, 16)
@@ -249,7 +249,7 @@ defmodule CRCTest do
           |> String.trim()
         results =
           case results do
-            << "0x", rest :: binary() >> -> rest
+            << "0x", rest :: binary >> -> rest
             _ -> results
           end
         crc_le = :erlang.binary_to_integer(results, 16)
