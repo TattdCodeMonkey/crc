@@ -1,5 +1,5 @@
 defmodule CRC16 do
-  use Bitwise
+  import Bitwise
 
   @crc16 0x8005
 

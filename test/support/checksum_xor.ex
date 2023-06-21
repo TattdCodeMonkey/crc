@@ -1,5 +1,5 @@
 defmodule ChecksumXOR do
-  use Bitwise
+  import Bitwise
 
   def calc(input) do
     calc(input, 0)

@@ -1,7 +1,7 @@
 defmodule CRCTest do
   use ExUnit.Case
   use PropCheck
-  use Bitwise
+  import Bitwise
   doctest CRC
 
   @test_data_01 "123456789"
