@@ -1,5 +1,5 @@
 defmodule ChecksumXOR do
-  use Bitwise
+  import Bitwise
 
   def calc(input) do
     calc(input, 0)
@@ -10,7 +10,7 @@ defmodule ChecksumXOR do
     sum
   end
   defp calc(<< c, rest :: binary() >>, sum) do
-    calc(rest, sum ^^^ c)
+    calc(rest, bxor(sum, c))
   end
 
 end

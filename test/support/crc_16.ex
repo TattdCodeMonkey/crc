@@ -1,5 +1,5 @@
 defmodule CRC16 do
-  use Bitwise
+  import Bitwise
 
   @crc16 0x8005
 
@@ -35,7 +35,7 @@ defmodule CRC16 do
     if flag === 0 do
       do_final(crc, i + 1)
     else
-      do_final(crc ^^^ @crc16, i + 1)
+      do_final(bxor(crc, @crc16), i + 1)
     end
   end
 
@@ -62,7 +62,7 @@ defmodule CRC16 do
     if flag === 0 do
       do_update(crc, c, read + 1)
     else
-      do_update(crc ^^^ @crc16, c, read + 1)
+      do_update(bxor(crc, @crc16), c, read + 1)
     end
   end
 

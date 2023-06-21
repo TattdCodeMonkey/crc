@@ -1,5 +1,5 @@
 defmodule CRC8KOOP do
-  use Bitwise
+  import Bitwise
 
   # Adapted from ./pycrc.py --generate=c --algorithm=bbb --model=crc-8-koop
 
@@ -10,7 +10,7 @@ defmodule CRC8KOOP do
   end
 
   def init(seed \\ 0xff) do
-    seed ^^^ 0xff
+    bxor(seed, 0xff)
   end
 
   def update(crc, <<>>) do
@@ -29,7 +29,7 @@ defmodule CRC8KOOP do
   @doc false
   defp do_final(crc, 8) do
     crc = reflect(crc, 8)
-    (crc ^^^ 0xff) &&& 0xff
+    (bxor(crc, 0xff)) &&& 0xff
   end
   defp do_final(crc, i) do
     bit = crc &&& 0x80
@@ -37,7 +37,7 @@ defmodule CRC8KOOP do
     if bit === 0 do
       do_final(crc, i + 1)
     else
-      do_final(crc ^^^ 0x4d, i + 1)
+      do_final(bxor(crc, 0x4d), i + 1)
     end
   end
 
@@ -51,7 +51,7 @@ defmodule CRC8KOOP do
     if bit === 0 do
       do_update(crc, c, i + 1)
     else
-      do_update(crc ^^^ 0x4d, c, i + 1)
+      do_update(bxor(crc, 0x4d), c, i + 1)
     end
   end
 

@@ -11,10 +11,10 @@ defmodule CRC.Model do
     xorout: 0x0000000000000000..0xffffffffffffffff,
     check: 0x0000000000000000..0xffffffffffffffff,
     residue: 0x0000000000000000..0xffffffffffffffff,
-    name: binary(),
+    name: binary,
     key: atom(),
     aliases: %{
-      optional(atom()) => binary()
+      optional(atom()) => binary
     },
     slow: boolean(),
     value: non_neg_integer()
@@ -240,7 +240,7 @@ defmodule CRC.Model do
     acc = %{ acc | aliases: aliases }
     parse(rest, acc)
   end
-  defp parse(<< ?\n, rest :: binary() >>, acc) do
+  defp parse(<< ?\n, rest :: binary >>, acc) do
     acc =
       if is_nil(acc.sick) do
         %{ acc | sick: false }
@@ -263,7 +263,7 @@ defmodule CRC.Model do
       {:ok, acc, rest}
     end
   end
-  defp parse(<< _, rest :: binary() >>, acc) do
+  defp parse(<< _, rest :: binary >>, acc) do
     parse(rest, acc)
   end
   defp parse(<<>>, acc) do
@@ -284,39 +284,39 @@ defmodule CRC.Model do
   defp take_until_whitespace(<<>>, acc) do
     {<<>>, acc}
   end
-  defp take_until_whitespace(rest = << ?\n, _ :: binary() >>, acc) do
+  defp take_until_whitespace(rest = << ?\n, _ :: binary >>, acc) do
     {rest, acc}
   end
-  defp take_until_whitespace(<< ?\s, rest :: binary() >>, acc) do
+  defp take_until_whitespace(<< ?\s, rest :: binary >>, acc) do
     {rest, acc}
   end
-  defp take_until_whitespace(<< c, rest :: binary() >>, acc) do
-    take_until_whitespace(rest, << acc ::binary(), c >>)
+  defp take_until_whitespace(<< c, rest :: binary >>, acc) do
+    take_until_whitespace(rest, << acc ::binary, c >>)
   end
 
   @doc false
-  defp underscore(<< ?", rest :: binary() >>, acc) do
+  defp underscore(<< ?", rest :: binary >>, acc) do
     underscore(rest, acc)
   end
-  defp underscore(<< c, rest :: binary() >>, acc) when c in ?A..?Z do
-    underscore(rest, << acc :: binary(), (c + 32) >>)
+  defp underscore(<< c, rest :: binary >>, acc) when c in ?A..?Z do
+    underscore(rest, << acc :: binary, (c + 32) >>)
   end
-  defp underscore(<< c, rest :: binary() >>, acc) when c in ?a..?z or c in ?0..?9 do
-    underscore(rest, << acc :: binary(), c >>)
+  defp underscore(<< c, rest :: binary >>, acc) when c in ?a..?z or c in ?0..?9 do
+    underscore(rest, << acc :: binary, c >>)
   end
-  defp underscore(<< c, rest :: binary() >>, acc) when c in [?-, ?/] do
-    underscore(rest, << acc :: binary(), ?_ >>)
+  defp underscore(<< c, rest :: binary >>, acc) when c in [?-, ?/] do
+    underscore(rest, << acc :: binary, ?_ >>)
   end
   defp underscore(<<>>, acc) do
     acc
   end
 
   @doc false
-  defp strip_quotes(<< ?", rest :: binary() >>, acc) do
+  defp strip_quotes(<< ?", rest :: binary >>, acc) do
     strip_quotes(rest, acc)
   end
-  defp strip_quotes(<< c, rest :: binary() >>, acc) do
-    strip_quotes(rest, << acc :: binary(), c >>)
+  defp strip_quotes(<< c, rest :: binary >>, acc) do
+    strip_quotes(rest, << acc :: binary, c >>)
   end
   defp strip_quotes(<<>>, acc) do
     acc
