@@ -66,7 +66,12 @@ endif
 
 C_SRC_NIF_FILE = $(C_SRC_NIF)$(C_SRC_SHARED_EXTENSION)
 
-ifeq ($(PLATFORM),msys2)
+ifneq (,$(and $(findstring nerves,$(CROSSCOMPILE)),$(findstring darwin,$(PLATFORM)),$(filter arm64,$(ARCH))))
+	CC = $(CROSSCOMPILE)-gcc
+	CFLAGS += -O3 -std=c11 -fstack-protector -Wall -Wmissing-prototypes
+	CXXFLAGS += -O3 -std=c++11 -fstack-protector -Wall
+	LDFLAGS += -shared
+else ifeq ($(PLATFORM),msys2)
 # We hardcode the compiler used on MSYS2. The default CC=cc does
 # not produce working code. The "gcc" MSYS2 package also doesn't.
 	CC = /mingw64/bin/gcc
