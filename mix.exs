@@ -2,7 +2,7 @@ defmodule CRC.Mixfile do
   use Mix.Project
 
   @source_url "https://github.com/TattdCodeMonkey/crc"
-  @version "0.10.5"
+  @version "0.10.6"
 
   def project() do
     [

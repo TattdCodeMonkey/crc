@@ -28,14 +28,14 @@ Add `crc` to your `rebar.config`:
 
 ```erlang
 {deps, [
-  {crc, "0.10.5"}
+  {crc, "0.10.6"}
 ]}.
 ```
 
 Or `erlang.mk`:
 
 ```erlang
-dep_crc = hex 0.10.5
+dep_crc = hex 0.10.6
 ```
 
 ## Supported algorithms (models)
