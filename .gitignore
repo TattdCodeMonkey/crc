@@ -43,3 +43,4 @@ crc-*.tar
 # Editor folders
 /.idea
 /.vscode
+/.claude

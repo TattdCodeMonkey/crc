@@ -109,7 +109,7 @@ defmodule CRC do
   @doc """
   Returns a list of all the compiled CRC models.
   """
-  @spec list() :: [{atom, String.t}]
+  @spec list() :: [{atom, String.t()}]
   def list() do
     :crc_nif.crc_list()
     |> Map.to_list()
@@ -122,10 +122,10 @@ defmodule CRC do
   Filter is compiled into a regular expression and matched against the model name
   and description.
   """
-  @spec list(binary) :: [{atom, String.t}]
+  @spec list(binary) :: [{atom, String.t()}]
   def list(filter) do
     list()
-    |> Enum.filter(&(list_filter(&1, filter)))
+    |> Enum.filter(&list_filter(&1, filter))
   end
 
   defp list_filter({model_atom, model_name}, filter) do

@@ -9,8 +9,8 @@ defmodule ChecksumXOR do
   defp calc(<<>>, sum) do
     sum
   end
-  defp calc(<< c, rest :: binary() >>, sum) do
+
+  defp calc(<<c, rest::binary>>, sum) do
     calc(rest, bxor(sum, c))
   end
-
 end
