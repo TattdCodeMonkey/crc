@@ -1,4 +1,5 @@
 defmodule CRC8KOOP do
+  @moduledoc false
   import Bitwise
 
   # Adapted from ./pycrc.py --generate=c --algorithm=bbb --model=crc-8-koop
@@ -9,17 +10,18 @@ defmodule CRC8KOOP do
     |> final()
   end
 
-  def init(seed \\ 0xff) do
-    bxor(seed, 0xff)
+  def init(seed \\ 0xFF) do
+    bxor(seed, 0xFF)
   end
 
   def update(crc, <<>>) do
-    crc &&& 0xff
+    crc &&& 0xFF
   end
-  def update(crc, << d, data :: binary() >>) do
+
+  def update(crc, <<d, data::binary>>) do
     c = reflect(d, 8)
     crc = do_update(crc, c, 0)
-    update(crc &&& 0xff, data)
+    update(crc &&& 0xFF, data)
   end
 
   def final(crc) do
@@ -29,15 +31,17 @@ defmodule CRC8KOOP do
   @doc false
   defp do_final(crc, 8) do
     crc = reflect(crc, 8)
-    (bxor(crc, 0xff)) &&& 0xff
+    bxor(crc, 0xFF) &&& 0xFF
   end
+
   defp do_final(crc, i) do
     bit = crc &&& 0x80
     crc = crc <<< 1
+
     if bit === 0 do
       do_final(crc, i + 1)
     else
-      do_final(bxor(crc, 0x4d), i + 1)
+      do_final(bxor(crc, 0x4D), i + 1)
     end
   end
 
@@ -45,13 +49,15 @@ defmodule CRC8KOOP do
   defp do_update(crc, _c, 8) do
     crc
   end
+
   defp do_update(crc, c, i) do
     bit = crc &&& 0x80
-    crc = (crc <<< 1) ||| ((c >>> (7 - i)) &&& 0x01)
+    crc = crc <<< 1 ||| (c >>> (7 - i) &&& 0x01)
+
     if bit === 0 do
       do_update(crc, c, i + 1)
     else
-      do_update(bxor(crc, 0x4d), c, i + 1)
+      do_update(bxor(crc, 0x4D), c, i + 1)
     end
   end
 
@@ -64,11 +70,11 @@ defmodule CRC8KOOP do
   @doc false
   defp reflect(data, data_len, i, ret) when i < data_len do
     data = data >>> 1
-    ret = (ret <<< 1) ||| (data &&& 0x01)
+    ret = ret <<< 1 ||| (data &&& 0x01)
     reflect(data, data_len, i + 1, ret)
   end
+
   defp reflect(_data, _data_len, _i, ret) do
     ret
   end
-
 end

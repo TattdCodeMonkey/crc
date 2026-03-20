@@ -8,7 +8,7 @@ defmodule CRC.Mixfile do
     [
       app: :crc,
       version: @version,
-      elixir: ">= 1.4.2 and < 2.0.0",
+      elixir: "~> 1.14",
       elixirc_paths: elixirc_paths(Mix.env()),
       build_embedded: Mix.env() == :prod,
       start_permanent: Mix.env() == :prod,
@@ -32,6 +32,7 @@ defmodule CRC.Mixfile do
   defp deps() do
     [
       {:elixir_make, "~> 0.6", runtime: false},
+      {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
       {:ex_doc, ">= 0.0.0", only: :dev, runtime: false},
       {:propcheck, "~> 1.0", only: :test}
     ]

@@ -1,4 +1,4 @@
-defmodule CRC_16_Test do
+defmodule CRC16Test do
   use ExUnit.Case
   use PropCheck
 
@@ -35,7 +35,6 @@ defmodule CRC_16_Test do
     assert CRC.ccitt_16(large_input) == 0xBE01
   end
 
-
   test "calculate correct CRC-16 ccitt with default 0xFFFF - test data 2" do
     assert CRC.ccitt_16(@test_data_02) == 0x8796
   end
@@ -71,7 +70,7 @@ defmodule CRC_16_Test do
   end
 
   test "calculate correct CRC-16 kermit - test data 2" do
-    assert CRC.ccitt_16_kermit(@test_data_02) == 0xf90c
+    assert CRC.ccitt_16_kermit(@test_data_02) == 0xF90C
   end
 
   # Modbus
