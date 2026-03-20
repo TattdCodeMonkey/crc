@@ -1,4 +1,5 @@
 defmodule CRC8KOOP do
+  @moduledoc false
   import Bitwise
 
   # Adapted from ./pycrc.py --generate=c --algorithm=bbb --model=crc-8-koop

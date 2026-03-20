@@ -1,4 +1,6 @@
 defmodule CRC.Model do
+  @moduledoc false
+
   @type t() :: %__MODULE__{
           bits: 0x00..0xFF,
           sick: boolean(),
@@ -332,18 +334,7 @@ defmodule CRC.Model do
     if is_nil(acc.width) or is_nil(acc.refin) or is_nil(acc.poly) do
       {:error, acc, rest}
     else
-      bits = (div(acc.width, 8) + if(rem(acc.width, 8) == 0, do: 0, else: 1)) * 8
-
-      bits =
-        case bits do
-          _ when bits in [8, 16, 32, 64] -> bits
-          _ when bits < 8 -> 8
-          _ when bits > 8 and bits < 16 -> 16
-          _ when bits > 16 and bits < 32 -> 32
-          _ when bits > 32 and bits < 64 -> 64
-        end
-
-      acc = %{acc | bits: bits}
+      acc = %{acc | bits: normalize_bits(acc.width)}
       {:ok, acc, rest}
     end
   end
@@ -355,6 +346,17 @@ defmodule CRC.Model do
   defp parse(<<>>, acc) do
     parse(<<?\n>>, acc)
   end
+
+  defp normalize_bits(width) do
+    bits = div(width + 7, 8) * 8
+    round_to_supported_bits(bits)
+  end
+
+  defp round_to_supported_bits(bits) when bits in [8, 16, 32, 64], do: bits
+  defp round_to_supported_bits(bits) when bits < 8, do: 8
+  defp round_to_supported_bits(bits) when bits < 16, do: 16
+  defp round_to_supported_bits(bits) when bits < 32, do: 32
+  defp round_to_supported_bits(_bits), do: 64
 
   @doc false
   defp decode_hex(value) do

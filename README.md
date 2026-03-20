@@ -133,7 +133,7 @@ PyCRC is used as a part of the TravisCI test suite.
 
 ## Copyright and License
 
-Copyright (c) 2015 Rodney Norris
+Copyright (c) 2026 Rodney Norris
 
 CRC is released under the MIT License. See the [LICENSE.md](./LICENSE.md) file
 for further details.

@@ -1,4 +1,4 @@
-defmodule CRC_32_Test do
+defmodule CRC32Test do
   use ExUnit.Case
   use PropCheck
 

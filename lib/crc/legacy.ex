@@ -62,6 +62,7 @@ defmodule CRC.Legacy do
       This CCIT method uses a 0x1021 polynomial.
       """
       @spec ccitt_16_1D0F(binary) :: number
+      # credo:disable-for-next-line Credo.Check.Readability.FunctionNames
       def ccitt_16_1D0F(input) do
         extend_model_seed(:crc_16_ccitt_false, 0x1D0F)
         |> :crc_fast.calc(input)
