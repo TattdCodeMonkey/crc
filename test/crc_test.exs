@@ -76,12 +76,21 @@ defmodule CRCTest do
     assert :crc_algorithm.verify_residue(:crc_slow, %{display: :failed}) == []
   end
 
+  test "CRC.Pure module verifies all checks" do
+    assert :crc_algorithm.verify_check(CRC.Pure, %{display: :failed}) == []
+  end
+
+  test "CRC.Pure module verifies all residues" do
+    assert :crc_algorithm.verify_residue(CRC.Pure, %{display: :failed}) == []
+  end
+
   property "matching CRC for known models" do
     models = Map.keys(:crc_nif.crc_list())
 
     forall {model, input} in {oneof(models), binary()} do
       :crc_slow.calc(model, input) === :crc_fast.calc(model, input) and
-        :crc_fast.calc(model, input) === :crc_pure.calc(model, input)
+        :crc_fast.calc(model, input) === :crc_pure.calc(model, input) and
+        :crc_pure.calc(model, input) === CRC.Pure.calc(model, input)
     end
   end
 
@@ -119,7 +128,8 @@ defmodule CRCTest do
 
     forall {model, input} <- {model_gen, binary()} do
       :crc_slow.calc(model, input) === :crc_fast.calc(model, input) and
-        :crc_fast.calc(model, input) === :crc_pure.calc(model, input)
+        :crc_fast.calc(model, input) === :crc_pure.calc(model, input) and
+        :crc_pure.calc(model, input) === CRC.Pure.calc(model, input)
     end
   end
 
@@ -158,7 +168,8 @@ defmodule CRCTest do
 
     forall {model, input} <- {model_gen, binary()} do
       :crc_slow.calc(model, input) === :crc_fast.calc(model, input) and
-        :crc_fast.calc(model, input) === :crc_pure.calc(model, input)
+        :crc_fast.calc(model, input) === :crc_pure.calc(model, input) and
+        :crc_pure.calc(model, input) === CRC.Pure.calc(model, input)
     end
   end
 
@@ -291,9 +302,11 @@ defmodule CRCTest do
         fast_challenge = :crc_fast.calc(model, input)
         pure_challenge = :crc_pure.calc(model, input)
         slow_challenge = :crc_slow.calc(model, input)
+        elixir_pure_challenge = CRC.Pure.calc(model, input)
 
         if fast_challenge === crc_le do
-          fast_challenge === crc_le and pure_challenge === crc_le and slow_challenge === crc_le
+          fast_challenge === crc_le and pure_challenge === crc_le and
+            slow_challenge === crc_le and elixir_pure_challenge === crc_le
         else
           size =
             if rem(widths[model], 8) != 0 do
@@ -304,7 +317,9 @@ defmodule CRCTest do
 
           crc_le_bin = <<crc_le::unsigned-little-integer-unit(1)-size(size)>>
           <<crc_be::unsigned-big-integer-unit(1)-size(size)>> = crc_le_bin
-          fast_challenge === crc_be and pure_challenge === crc_be and slow_challenge === crc_be
+
+          fast_challenge === crc_be and pure_challenge === crc_be and
+            slow_challenge === crc_be and elixir_pure_challenge === crc_be
         end
       end
     end
