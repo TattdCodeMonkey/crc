@@ -38,6 +38,17 @@ Or `erlang.mk`:
 dep_crc = hex 0.10.6
 ```
 
+### Build requirements
+
+crc compiles its NIFs from C source when it is built, so you need a C compiler, `make`, and the C standard library headers:
+
+- Alpine: `apk add build-base` (or `gcc make musl-dev`)
+- Debian / Ubuntu: `apt install build-essential`
+- Fedora: `dnf group install "Development Tools"`
+- macOS: `xcode-select --install`
+- FreeBSD / OpenBSD / NetBSD / DragonFly: `gmake` and a C compiler
+- Windows: Visual Studio Build Tools (`nmake` and `cl`), run from a Developer Command Prompt
+
 ## Supported algorithms (models)
 
 Run `CRC.list/0` to get a full list of all pre-defined models or `CRC.list/1` with a filter to search for a pre-defined model.
