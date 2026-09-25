@@ -3,8 +3,8 @@
 [![Module Version](https://img.shields.io/hexpm/v/crc.svg)](https://hex.pm/packages/crc)
 [![Hex Docs](https://img.shields.io/badge/hex-docs-lightgreen.svg)](https://hexdocs.pm/crc/)
 [![Total Download](https://img.shields.io/hexpm/dt/crc.svg)](https://hex.pm/packages/crc)
-[![License](https://img.shields.io/hexpm/l/crc.svg)](https://github.com/TattdCodeMonkey/crc/blob/master/LICENSE)
-[![Last Updated](https://img.shields.io/github/last-commit/TattdCodeMonkey/crc.svg)](https://github.com/TattdCodeMonkey/crc/commits/master)
+[![License](https://img.shields.io/hexpm/l/crc.svg)](https://github.com/TattdCodeMonkey/crc/blob/main/LICENSE)
+[![Last Updated](https://img.shields.io/github/last-commit/TattdCodeMonkey/crc.svg)](https://github.com/TattdCodeMonkey/crc/commits/main)
 
 This module is used to calculate CRC (Cyclic Redundancy Check) values for binary data. It uses NIF functions written in C to iterate over the given binary calculating the CRC checksum value. The NIFs are written to report their time slice usage and will not interfere with the schedulers.
 
