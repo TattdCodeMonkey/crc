@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v0.10.7 - Unreleased
+- Remove the `elixir_make` dependency so the Hex package can be used from
+  rebar3 / plain Erlang projects [#50](https://github.com/TattdCodeMonkey/crc/issues/50)
+
 ## v0.10.6 - 2025-11-01
 - Fix nerves target on arm based macos host [#51](https://github.com/TattdCodeMonkey/crc/pull/51)
 
