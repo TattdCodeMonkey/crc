@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+v0.12 prepares for v1.0, which removes the NIF and the C compiler
+requirement. See "Upgrading to 1.0" in the README.
+
+- Add `CRC.Pure` / `crc_pure`, an implementation with no NIF that has the
+  same API as `CRC`. It will replace the NIF in v1.0
+- Rewrite `crc_pure` as a table-driven engine, 10 to 45 times faster than
+  the previous bit-by-bit version. `crc_pure` no longer needs the NIF for
+  model data and now accepts `%{extend: model, ...}`
+- Add `src/crc_models.erl`, the catalogue of pre-defined models
+- `crc_pure` caches each built-in model's lookup table in `persistent_term`
+  on first use, at most about 2.6 KB per model. Custom models are not
+  cached. Add `CRC.Pure.clear_cache/0,1` (`crc_pure:clear_cache/0,1`) to
+  remove cached models; clearing is expensive, so use it rarely
+- Add `calculate/2`, `init/1`, `update/2`, `final/1`, `info/1` and
+  `residue/1` to `CRC` and `crc`, the API that v1.0 keeps
+- Deprecate `crc/2`, `crc_init/1`, `crc_update/2`, `crc_final/1` and the
+  model-specific helpers (`crc_8`, `crc_16`, `ccitt_16*`, `crc_16_dnp`,
+  `crc_16_modbus`, `crc_16_sick`, `crc_32`). Each deprecation message names
+  its replacement. They will be removed in v1.0
+- `CRC.list/0` and `CRC.list/1` now come from `crc:list/0,1`. The list is
+  sorted by key, and `list/1` raises `ArgumentError` for an invalid regular
+  expression instead of `MatchError`
+
 ## v0.11.0 - 2026-09-25
 - **Minimum Elixir version is now 1.14** (was 1.4.2) [#54](https://github.com/TattdCodeMonkey/crc/pull/54)
 - Remove the `elixir_make` dependency so the Hex package can be used from

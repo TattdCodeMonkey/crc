@@ -44,3 +44,6 @@ crc-*.tar
 /.idea
 /.vscode
 /.claude
+
+# Python virtualenv (pycrc for integration tests)
+/.venv/
