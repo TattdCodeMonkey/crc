@@ -36,3 +36,27 @@ jobs:
       run: mix deps.get
     - name: Run tests
       run: mix test
+
+  rebar3:
+
+    name: Build with rebar3 (OTP ${{matrix.otp}})
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        otp: ['25.3.2', '26.2.5']
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Erlang
+      uses: erlef/setup-beam@v1
+      with:
+        otp-version: ${{matrix.otp}}
+        rebar3-version: '3.24'
+    - name: Compile
+      run: rebar3 compile
+    - name: Smoke test NIF
+      run: |
+        erl -noshell -pa _build/default/lib/crc/ebin -eval '
+          16#29B1 = crc:crc(crc_16_ccitt_false, <<"123456789">>),
+          halt(0).'
