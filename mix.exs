@@ -1,8 +1,57 @@
+defmodule Mix.Tasks.Compile.CrcNif do
+  @moduledoc false
+  # Builds the NIF via c_src/Makefile. Kept inline (instead of depending on
+  # elixir_make) so the Hex package has no requirements and can be consumed
+  # by rebar3, which uses rebar.config and can't build Mix-only deps.
+  use Mix.Task.Compiler
+
+  @impl Mix.Task.Compiler
+  def run(_args) do
+    case make(make_args(["all"])) do
+      {_, 0} -> {:ok, []}
+      {_, code} -> Mix.raise("Could not compile crc NIF, make exited with status #{code}")
+    end
+  end
+
+  @impl Mix.Task.Compiler
+  def clean() do
+    make(make_args(["clean"]))
+    :ok
+  end
+
+  defp make(args) do
+    System.cmd(make_cmd(), args,
+      cd: "c_src",
+      env: [
+        {"MIX_APP_PATH", Mix.Project.app_path()},
+        {"MIX_ENV", to_string(Mix.env())}
+      ],
+      into: IO.stream(:stdio, :line),
+      stderr_to_stdout: true
+    )
+  end
+
+  defp make_args(targets) do
+    case :os.type() do
+      {:win32, _} -> ["/F", "Makefile.win" | targets]
+      _ -> targets
+    end
+  end
+
+  defp make_cmd() do
+    case :os.type() do
+      {:win32, _} -> "nmake"
+      {:unix, os} when os in [:freebsd, :openbsd, :netbsd, :dragonfly] -> "gmake"
+      _ -> "make"
+    end
+  end
+end
+
 defmodule CRC.Mixfile do
   use Mix.Project
 
   @source_url "https://github.com/TattdCodeMonkey/crc"
-  @version "0.10.6"
+  @version "0.10.7"
 
   def project() do
     [
@@ -12,10 +61,7 @@ defmodule CRC.Mixfile do
       elixirc_paths: elixirc_paths(Mix.env()),
       build_embedded: Mix.env() == :prod,
       start_permanent: Mix.env() == :prod,
-      compilers: [:elixir_make] ++ Mix.compilers(),
-      make_env: %{"MIX_ENV" => to_string(Mix.env())},
-      make_clean: ["clean"],
-      make_cwd: "c_src",
+      compilers: [:crc_nif] ++ Mix.compilers(),
       name: "crc",
       package: package(),
       deps: deps(),
@@ -31,7 +77,6 @@ defmodule CRC.Mixfile do
 
   defp deps() do
     [
-      {:elixir_make, "~> 0.6", runtime: false},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
       {:ex_doc, ">= 0.0.0", only: :dev, runtime: false},
       {:propcheck, "~> 1.0", only: :test}
