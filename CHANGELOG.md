@@ -5,13 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## v0.10.7 - Unreleased
+## v0.11.0 - 2026-09-25
+- **Minimum Elixir version is now 1.14** (was 1.4.2) [#54](https://github.com/TattdCodeMonkey/crc/pull/54)
 - Remove the `elixir_make` dependency so the Hex package can be used from
   rebar3 / plain Erlang projects [#50](https://github.com/TattdCodeMonkey/crc/issues/50)
 - Fix Nerves builds on arm based macos hosts with GCC 14+ toolchains, which
-  failed on an implicit declaration of `strnlen`
+  failed on an implicit declaration of `strnlen` [#57](https://github.com/TattdCodeMonkey/crc/pull/57)
 - Fix Nerves / cross-compiled builds on Intel macos hosts, which passed
   `-arch x86_64` to the cross compiler [#39](https://github.com/TattdCodeMonkey/crc/issues/39)
+- Update dependencies and fix deprecation warnings [#54](https://github.com/TattdCodeMonkey/crc/pull/54)
+- Document C build requirements in the README [#59](https://github.com/TattdCodeMonkey/crc/pull/59)
 
 ## v0.10.6 - 2025-11-01
 - Fix nerves target on arm based macos host [#51](https://github.com/TattdCodeMonkey/crc/pull/51)
