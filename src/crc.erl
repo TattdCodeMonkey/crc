@@ -3,6 +3,16 @@
 -module(crc).
 
 %% Public API
+-export([calculate/2]).
+-export([init/1]).
+-export([update/2]).
+-export([final/1]).
+-export([info/1]).
+-export([residue/1]).
+-export([list/0]).
+-export([list/1]).
+-export([checksum_xor/1]).
+%% Deprecated API, removed in v1.0
 -export([crc/2]).
 -export([crc_init/1]).
 -export([crc_update/2]).
@@ -20,9 +30,29 @@
 -export([crc_16_modbus/1]).
 -export([crc_16_sick/1]).
 -export([crc_32/1]).
--export([checksum_xor/1]).
 %% Internal API
 -export([priv_dir/0]).
+
+-deprecated([
+	{crc, 2, "use crc:calculate/2 instead (note the argument order: Input, Model)"},
+	{crc_init, 1, "use crc:init/1 instead"},
+	{crc_update, 2, "use crc:update/2 instead"},
+	{crc_final, 1, "use crc:final/1 instead"},
+	{crc_8, 1, "use crc:calculate(Input, #{extend => crc_8_koop, init => 0}) instead"},
+	{crc_8, 2, "use crc:calculate(Input, #{extend => crc_8_koop, init => Init}) instead, "
+		"where Init is the bit-reflected value of (Seed bxor 16#FF)"},
+	{crc_16, 1, "use crc:calculate(Input, crc_16) instead"},
+	{ccitt_16, 1, "use crc:calculate(Input, crc_16_ccitt_false) instead"},
+	{ccitt_16, 2, "use crc:calculate(Input, #{extend => crc_16_ccitt_false, init => Seed}) instead"},
+	{ccitt_16_kermit, 1, "use crc:calculate(Input, crc_16_kermit) instead"},
+	{ccitt_16_kermit, 2, "use crc:calculate(Input, #{extend => crc_16_kermit, init => Seed}) instead"},
+	{ccitt_16_xmodem, 1, "use crc:calculate(Input, xmodem) instead"},
+	{ccitt_16_1D0F, 1, "use crc:calculate(Input, #{extend => crc_16_ccitt_false, init => 16#1D0F}) instead"},
+	{crc_16_dnp, 1, "use crc:calculate(Input, crc_16_dnp) instead"},
+	{crc_16_modbus, 1, "use crc:calculate(Input, crc_16_modbus) instead"},
+	{crc_16_sick, 1, "use crc:calculate(Input, crc_16_sick) instead"},
+	{crc_32, 1, "use crc:calculate(Input, crc_32) instead"}
+]).
 
 %% Types
 -type uint8_t() :: 16#00..16#FF.
@@ -31,6 +61,67 @@
 
 %%%===================================================================
 %%% Public API Functions
+%%%===================================================================
+
+%% @doc Calculates the CRC of `Input' using `Model': a pre-defined model
+%% name or alias (see list/0), a map of model parameters, or a map with an
+%% `extend' key naming a pre-defined model plus the parameters to override.
+-spec calculate(iodata(), crc_algorithm:params()) -> crc_algorithm:value().
+calculate(Input, Model) ->
+	crc_fast:calc(Model, Input).
+
+%% @doc Starts a multi-part CRC calculation for `Model'.
+-spec init(crc_algorithm:params()) -> crc_algorithm:resource().
+init(Model) ->
+	crc_fast:init(Model).
+
+%% @doc Continues a multi-part CRC calculation with `Input', returning a
+%% new resource to pass to the next update/2 or final/1 call.
+-spec update(crc_algorithm:resource(), iodata()) -> crc_algorithm:resource().
+update(Resource, Input) ->
+	crc_fast:update(Resource, Input).
+
+%% @doc Finishes a multi-part CRC calculation and returns the CRC.
+-spec final(crc_algorithm:resource()) -> crc_algorithm:value().
+final(Resource) ->
+	crc_fast:final(Resource).
+
+%% @doc Returns the parameters of a model or of a resource from init/1.
+-spec info(crc_algorithm:params() | crc_algorithm:resource()) -> crc_algorithm:info().
+info(ModelOrResource) ->
+	Info = crc_fast:info(to_resource(ModelOrResource)),
+	maps:with([width, poly, init, refin, refout, xorout, check, residue, sick], Info).
+
+%% @doc Returns the residue of a model or of a resource from init/1.
+-spec residue(crc_algorithm:params() | crc_algorithm:resource()) -> crc_algorithm:value().
+residue(ModelOrResource) ->
+	crc_fast:residue(to_resource(ModelOrResource)).
+
+%% @doc Returns every pre-defined model as `{Key, Name}'.
+-spec list() -> [{atom(), binary()}].
+list() ->
+	crc_models:list().
+
+%% @doc Returns the pre-defined models whose key or name matches the
+%% regular expression `Filter'.
+-spec list(iodata()) -> [{atom(), binary()}].
+list(Filter) ->
+	case re:compile(Filter) of
+		{ok, Regex} ->
+			[Model || Model = {Key, Name} <- list(),
+				re:run(atom_to_binary(Key, utf8), Regex, [{capture, none}]) =:= match
+				orelse re:run(Name, Regex, [{capture, none}]) =:= match];
+		{error, _} ->
+			erlang:error({badarg, [Filter]})
+	end.
+
+%% @doc Calculates an 8-bit XOR checksum of `Input'.
+-spec checksum_xor(binary()) -> uint8_t().
+checksum_xor(Input) ->
+	crc_nif:checksum_xor(Input).
+
+%%%===================================================================
+%%% Deprecated API Functions
 %%%===================================================================
 
 -spec crc(crc_algorithm:model(), iodata()) -> crc_algorithm:value().
@@ -101,10 +192,6 @@ crc_16_sick(Input) ->
 crc_32(Input) ->
 	crc_fast:calc(crc_32, Input).
 
--spec checksum_xor(binary()) -> uint8_t().
-checksum_xor(Input) ->
-	crc_nif:checksum_xor(Input).
-
 %%%===================================================================
 %%% Internal API Functions
 %%%===================================================================
@@ -126,3 +213,9 @@ priv_dir() ->
 %%%-------------------------------------------------------------------
 %%% Internal functions
 %%%-------------------------------------------------------------------
+
+%% @private
+to_resource(Resource) when is_reference(Resource) ->
+	Resource;
+to_resource(Model) ->
+	crc_fast:init(Model).

@@ -81,12 +81,85 @@ defmodule CRCPureTest do
         xorout: 0x0000
       }
 
-      assert CRC.Pure.calc(model, @test_data) == :crc_fast.calc(model, @test_data)
+      assert CRC.Pure.calculate(@test_data, model) == :crc_fast.calc(model, @test_data)
+    end
+
+    test "extend accepts a resource, a params map or a nested extend" do
+      custom = %{width: 16, poly: 0x1021, init: 0xFFFF, refin: false, refout: false, xorout: 0}
+
+      for {pure_base, nif_base} <- [
+            {CRC.Pure.init(:crc_32), CRC.init(:crc_32)},
+            {CRC.Pure.init(custom), CRC.init(custom)},
+            {custom, custom},
+            {%{extend: :crc_32, xorout: 0}, %{extend: :crc_32, xorout: 0}}
+          ] do
+        assert CRC.Pure.calculate(@test_data, %{extend: pure_base, init: 0x1D0F}) ==
+                 CRC.calculate(@test_data, %{extend: nif_base, init: 0x1D0F})
+      end
+    end
+
+    test "custom models are not cached" do
+      # warm the caches for built-in models
+      for {key, _name} <- CRC.Pure.list(), do: CRC.Pure.init(key)
+      before = pure_cache_keys()
+
+      for poly <- 1..200 do
+        model = %{width: 32, poly: poly * 2 + 1, init: 0, refin: false, refout: false, xorout: 0}
+        CRC.Pure.calculate(@test_data, model)
+        CRC.Pure.info(model)
+        CRC.Pure.residue(model)
+      end
+
+      assert pure_cache_keys() -- before == []
+    end
+
+    test "clear_cache/0 removes every cached model" do
+      CRC.Pure.init(:crc_32)
+      CRC.Pure.init(:crc_16)
+      assert pure_cache_keys() != []
+
+      assert CRC.Pure.clear_cache() == :ok
+      assert pure_cache_keys() == []
+
+      # models are rebuilt on next use
+      assert CRC.Pure.calculate(@test_data, :crc_32) == 0xCBF43926
+    end
+
+    test "clear_cache/1 removes only that model, by name or alias" do
+      CRC.Pure.clear_cache()
+      CRC.Pure.init(:crc_32)
+      CRC.Pure.init(:crc_16)
+
+      # :pkzip is an alias of :crc_32
+      assert CRC.Pure.clear_cache(:pkzip) == :ok
+
+      assert pure_cache_keys() |> Enum.all?(&(:crc_32 not in Tuple.to_list(&1)))
+      assert {:crc_pure, :model, :crc_16} in pure_cache_keys()
+      assert CRC.Pure.clear_cache(:crc_32) == :ok
+
+      # an extend of the cleared model rebuilds its table
+      assert CRC.Pure.calculate(@test_data, %{extend: :crc_32, xorout: 0}) ==
+               CRC.calculate(@test_data, %{extend: :crc_32, xorout: 0})
+
+      assert_raise ArgumentError, fn -> CRC.Pure.clear_cache(:not_a_real_model) end
+    end
+
+    test "clear_cache/1 keeps a table shared with another cached model" do
+      CRC.Pure.clear_cache()
+      # :crc_16 and :crc_16_modbus share a width, polynomial and reflection
+      CRC.Pure.init(:crc_16_modbus)
+      CRC.Pure.init(:crc_16)
+      CRC.Pure.clear_cache(:crc_16)
+
+      assert CRC.Pure.calculate(@test_data, :crc_16_modbus) ==
+               CRC.calculate(@test_data, :crc_16_modbus)
+
+      assert CRC.Pure.calculate(@test_data, :crc_16) == 0xBB3D
     end
 
     test "init with extend" do
       extended = %{extend: :crc_16_ccitt_false, init: 0x1D0F}
-      assert CRC.Pure.calc(extended, @test_data) == :crc_fast.calc(extended, @test_data)
+      assert CRC.Pure.calculate(@test_data, extended) == :crc_fast.calc(extended, @test_data)
     end
   end
 
@@ -119,25 +192,34 @@ defmodule CRCPureTest do
     end
 
     test "matches check value for all models" do
-      for key <- CRC.Pure.list() do
+      for {key, _name} <- CRC.Pure.list() do
         info = CRC.Pure.info(key)
 
-        assert CRC.Pure.calc(key, @test_data) == info.check,
+        assert CRC.Pure.calculate(@test_data, key) == info.check,
                "check mismatch for #{key}"
       end
     end
   end
 
   describe "list/0" do
-    test "returns a non-empty list of atoms" do
+    test "returns a non-empty list of {key, name} tuples" do
       models = CRC.Pure.list()
       assert is_list(models)
-      assert length(models) > 0
-      assert Enum.all?(models, &is_atom/1)
+      assert models != []
+      assert Enum.all?(models, fn {key, name} -> is_atom(key) and is_binary(name) end)
+    end
+
+    test "matches CRC.list/0" do
+      assert Enum.sort(CRC.Pure.list()) == Enum.sort(CRC.list())
+    end
+
+    test "filters by key or name" do
+      assert CRC.Pure.list("^crc_32$") == [{:crc_32, "CRC-32"}]
+      assert {:crc_16_modbus, "CRC-16/MODBUS"} in CRC.Pure.list("MODBUS")
     end
 
     test "all models are initializable" do
-      for key <- CRC.Pure.list() do
+      for {key, _name} <- CRC.Pure.list() do
         resource = CRC.Pure.init(key)
         assert is_map(resource), "failed to init #{key}"
       end
@@ -160,9 +242,13 @@ defmodule CRCPureTest do
     end
 
     test "raises on non-integer width" do
+      # Hide the literal from the type checker, which would otherwise warn
+      # that this intentionally-invalid map can never match a valid clause.
+      width = Enum.random(["16"])
+
       assert_raise ArgumentError, fn ->
         CRC.Pure.init(%{
-          width: "16",
+          width: width,
           poly: 0x8005,
           init: 0x0000,
           refin: true,
@@ -244,7 +330,7 @@ defmodule CRCPureTest do
       models = Map.keys(:crc_nif.crc_list())
 
       forall {model, input} in {oneof(models), binary()} do
-        CRC.Pure.calc(model, input) === :crc_fast.calc(model, input)
+        CRC.Pure.calculate(input, model) === :crc_fast.calc(model, input)
       end
     end
 
@@ -282,7 +368,7 @@ defmodule CRCPureTest do
         such_that(%{poly: poly} <- model_gen_unsafe, when: poly > 0 and rem(poly, 2) != 0)
 
       forall {model, input} <- {model_gen, binary()} do
-        CRC.Pure.calc(model, input) === :crc_fast.calc(model, input)
+        CRC.Pure.calculate(input, model) === :crc_fast.calc(model, input)
       end
     end
 
@@ -321,7 +407,7 @@ defmodule CRCPureTest do
         such_that(%{poly: poly} <- model_gen_unsafe, when: poly > 0 and rem(poly, 2) != 0)
 
       forall {model, input} <- {model_gen, binary()} do
-        CRC.Pure.calc(model, input) === :crc_fast.calc(model, input)
+        CRC.Pure.calculate(input, model) === :crc_fast.calc(model, input)
       end
     end
 
@@ -329,7 +415,7 @@ defmodule CRCPureTest do
       models = Map.keys(:crc_nif.crc_list())
 
       forall {model, part1, part2} in {oneof(models), binary(), binary()} do
-        one_shot = CRC.Pure.calc(model, <<part1::binary, part2::binary>>)
+        one_shot = CRC.Pure.calculate(<<part1::binary, part2::binary>>, model)
 
         streamed =
           model
@@ -381,7 +467,7 @@ defmodule CRCPureTest do
         sizes = for {model, %{bits: bits}} <- infos, into: %{}, do: {model, bits}
         widths = for {model, %{width: width}} <- infos, into: %{}, do: {model, width}
 
-        forall {model, input} in {oneof(models), binary()} do
+        forall {model, input, split_at} in {oneof(models), binary(), non_neg_integer()} do
           command =
             "#{System.get_env("REVENG_BIN")} -c -m \"#{names[model]}\" \"#{Base.encode16(input)}\""
 
@@ -399,10 +485,11 @@ defmodule CRCPureTest do
             end
 
           crc_le = :erlang.binary_to_integer(results, 16)
-          pure_result = CRC.Pure.calc(model, input)
+          pure_result = CRC.Pure.calculate(input, model)
+          multipart_result = MultiPart.calculate(CRC.Pure, model, input, split_at)
 
           if pure_result === crc_le do
-            true
+            multipart_result === crc_le
           else
             size =
               if rem(widths[model], 8) != 0 do
@@ -412,11 +499,17 @@ defmodule CRCPureTest do
               end
 
             crc_le_bin = <<crc_le::unsigned-little-integer-unit(1)-size(size)>>
-            <<crc_be::unsigned-big-integer-unit(1)-size(size)>> = crc_le_bin
-            pure_result === crc_be
+            <<crc_be::unsigned-big-integer-unit(1)-size(^size)>> = crc_le_bin
+            pure_result === crc_be and multipart_result === crc_be
           end
         end
       end
     end
+  end
+
+  defp pure_cache_keys do
+    for {key, _} <- :persistent_term.get(),
+        is_tuple(key) and elem(key, 0) == :crc_pure,
+        do: key
   end
 end
