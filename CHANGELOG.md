@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   rebar3 / plain Erlang projects [#50](https://github.com/TattdCodeMonkey/crc/issues/50)
 - Fix Nerves builds on arm based macos hosts with GCC 14+ toolchains, which
   failed on an implicit declaration of `strnlen`
+- Fix Nerves / cross-compiled builds on Intel macos hosts, which passed
+  `-arch x86_64` to the cross compiler [#39](https://github.com/TattdCodeMonkey/crc/issues/39)
 
 ## v0.10.6 - 2025-11-01
 - Fix nerves target on arm based macos host [#51](https://github.com/TattdCodeMonkey/crc/pull/51)

@@ -66,7 +66,7 @@ endif
 
 C_SRC_NIF_FILE = $(C_SRC_NIF)$(C_SRC_SHARED_EXTENSION)
 
-ifneq (,$(and $(findstring nerves,$(CROSSCOMPILE)),$(findstring darwin,$(PLATFORM)),$(filter arm64,$(ARCH))))
+ifneq (,$(and $(CROSSCOMPILE),$(findstring darwin,$(PLATFORM))))
 	CC = $(CROSSCOMPILE)-gcc
 	CFLAGS += -O3 -std=c11 -fstack-protector -Wall -Wmissing-prototypes -D_POSIX_C_SOURCE=200809L
 	CXXFLAGS += -O3 -std=c++11 -fstack-protector -Wall
