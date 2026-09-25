@@ -17,7 +17,7 @@ Add `:crc` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:crc, "~> 0.10"}
+    {:crc, "~> 0.11"}
   ]
 end
 ```
@@ -28,14 +28,14 @@ Add `crc` to your `rebar.config`:
 
 ```erlang
 {deps, [
-  {crc, "0.10.7"}
+  {crc, "0.11.0"}
 ]}.
 ```
 
 Or `erlang.mk`:
 
 ```erlang
-dep_crc = hex 0.10.7
+dep_crc = hex 0.11.0
 ```
 
 ### Build requirements
